@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="Get live notifications for PS4 games discounts">
+    <meta name="author" content="Cheap Play">
+
+    <title>Cheap Play</title>
+
+    <!-- Icon -->
+    <link rel='icon' type='image/x-icon' href='img/favicon.ico' />
+
+    <!-- Bootstrap core CSS -->
+    <link href="vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Custom fonts for this template -->
+    <link href="vendor/fontawesome-free/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Varela+Round" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
+    <!-- Custom styles for this template -->
+    <link href="css/grayscale.min.css" rel="stylesheet">
+
+</head>
+
+<body id="page-top">
+
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-light fixed-top" id="mainNav">
+        <div class="container">
+            <a class="navbar-brand js-scroll-trigger" href="#page-top">CHEAP PLAY</a>
+            <button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse" data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
+        Menu
+        <i class="fas fa-bars"></i>
+      </button>
+            <div class="collapse navbar-collapse" id="navbarResponsive">
+                <ul class="navbar-nav ml-auto">
+                    <li class="nav-item">
+                        <a class="nav-link js-scroll-trigger" href="#about">GAMES LIST</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link js-scroll-trigger" href="#projects">GAME TRACKING REQUEST</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link js-scroll-trigger" href="#signup">SUBSCRIBE</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Header -->
+    <header class="masthead">
+        <div class="container d-flex h-100 align-items-center">
+            <div class="mx-auto text-center">
+                <h1 class="mx-auto my-0 text-uppercase">Cheap Play</h1><br><br>
+                <h2 class="text-white-50 mx-auto mt-2 mb-5">Get live notifications about price discounts for most latest and popular PS4 games.</h2>
+                <a href="#signup" class="btn btn-primary js-scroll-trigger">SUBSCRIBE</a>
+            </div>
+        </div>
+    </header>
+
+    <!-- About Section -->
+    <section id="about" class="projects-section text-center">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-12">
+                    <h2 class="text-black">Latest price updated games</h2>
+                    <p>currently tracked games: {{ games_count[0][0] }}</p><br>
+                </div>
+            </div><br>
+            <div class="row">
+                <div class="col-md-12">
+                    <table class="table my-table">
+                        <thead class="thead-dark">
+                            <th>Game</th>
+                            <th>Price</th>
+                            <th>Price update time</th>
+                        </thead>
+                        {% if games[0]|length > 0 %} {% for game in games %}
+                        <tr>
+                            <td><a href="{{ game[1] }}" target="_blank">{{ game[0] }}</a></td>
+                            <td>{{ game[2] }} {{ game[4] }}</td>
+                            <td>{{ game[3] }}</td>
+                        </tr>
+                        {% endfor %} {% endif %}
+                    </table>
+                </div>
+            </div>
+            <br><br>
+        </div>
+        <button id="allGamesButton" type="button" class="btn btn-primary">List all games</button>
+        <!-- Modal start -->
+        <div class="modal fade" id="myModal" role="dialog" style="direction: ltr">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h4 class="modal-title">Modal title</h4>
+            </div>
+            <div class="modal-body">
+              <p class="modal-text"></p>
+              <div id="loading" style="display:none;"><img height="20%" width="20%" src="img/loading.gif" alt="" /><br>Loading...</div>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+            </div>
+          </div>
+        </div>
+        </div>
+        <!-- Modal end -->
+    </section>
+
+    <!-- Projects Section -->
+    <section id="projects" class="about-section">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-8 col-lg-6 mx-auto text-center">
+
+                    <i class="material-icons" style="font-size:42px;color:white">question_answer</i>
+                    <h2 class="text-white">You decide which games to track!</h2>
+                    <p style="color:white">Request to add game to the tracking list <br>
+                    (Only subscribed user can request games tracking)</p><br>
+                    <form id="requestForm" name="requestForm" method="POST" action="" class="">
+                        <input required type="text" name="gamename" class="form-control flex-fill mr-0 mr-sm-2 mb-3 mb-sm-0" id="inputGameName" placeholder="Game name"><br><br>
+                        <input required type="text" name="gamelink" class="form-control flex-fill mr-0 mr-sm-2 mb-3 mb-sm-0" id="inputGameLink" placeholder="Game link from Playstation Store website"><br><br>
+                        <input required type="email" name="gamemail" class="form-control flex-fill mr-0 mr-sm-2 mb-3 mb-sm-0" id="inputGameMail" placeholder="Requester email address"><br><br>
+                        <input type="submit" value="Request" class="btn btn-primary mx-auto">
+                    </form>
+                    <br><br><br><br>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Signup Section -->
+    <section id="signup" class="signup-section">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-8 col-lg-6 mx-auto text-center">
+
+                    <i class="material-icons" style="font-size:42px;color:white">send</i>
+                    <h2 class="text-white">Subscribe to receive notifications!</h2>
+                    <p style="color:white">Notifications via Telegram <br>
+                        30 days free trial, to continue receive notifications, kindly donate</p><br>
+                    <form id="subscribeForm" name="subscribeForm" method="POST" action="" class="">
+                        <input required type="text" name="name" class="form-control flex-fill mr-0 mr-sm-2 mb-3 mb-sm-0" id="inputName" placeholder="Full name"><br><br>
+                        <input required type="email" name="email" class="form-control flex-fill mr-0 mr-sm-2 mb-3 mb-sm-0" id="inputEmail" placeholder="Email address"><br><br>
+                        <input required type="tel" name="phone" class="form-control flex-fill mr-0 mr-sm-2 mb-3 mb-sm-0" id="inputPhone" placeholder="Phone number (with postal code)"><br><br>
+                        <input type="submit" value="Subscribe" class="btn btn-primary mx-auto">
+                    </form>
+                    <br><br>
+                    <form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_top">
+                        <input type="hidden" name="cmd" value="_s-xclick" />
+                        <input type="hidden" name="hosted_button_id" value="8Y6KQQHBPAKHW" />
+                        <input type="image" src="https://gendundrubpadotorg.files.wordpress.com/2018/05/paypal-donate-button-png-clipart.png?w=150" border="0" name="submit" title="Donate via PayPal" alt="Donate with PayPal button" />
+                        <img alt="" border="0" src="https://www.paypal.com/en_IL/i/scr/pixel.gif" width="1" height="1" />
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-black small text-center text-white-50">
+        <div class="container">
+            &copy; All rights reserved to Cheap Play 2020 &copy;
+        </div>
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <script src="vendor/jquery/jquery.min.js"></script>
+    <script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Plugin JavaScript -->
+    <script src="vendor/jquery-easing/jquery.easing.min.js"></script>
+
+    <!-- Custom scripts for this template -->
+    <script src="js/grayscale.min.js"></script>
+    <script src="js/main.js"></script>
+
+</body>
+
+</html>

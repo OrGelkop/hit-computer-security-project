@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>Cheap Play - all games list</title>
+
+    <!-- Icon -->
+    <link rel='icon' type='image/x-icon' href='img/favicon.ico' />
+
+    <!-- Bootstrap core CSS -->
+    <link href="vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Custom fonts for this template -->
+    <link href="vendor/fontawesome-free/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Varela+Round" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
+    <!-- Custom styles for this template -->
+    <link href="css/grayscale.min.css" rel="stylesheet">
+
+</head>
+
+<body>
+
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-light fixed-top" id="mainNav">
+        <div class="container">
+            <a style="color:black; padding: 8px 0px;" class="navbar-brand js-scroll-trigger" href="/">CHEAP PLAY</a>
+        </div>
+    </nav>
+
+    <!-- About Section -->
+    <section id="about" class="projects-section text-center">
+        <div class="container">
+            {% if status_code ==  0 %}
+            <div class="row">
+                <div class="col-md-12">
+                    <h2 class="text-black">All games list</h2>
+                    <p>currently tracked games: {{ games_count[0][0] }}</p><br>
+                </div>
+            </div><br>
+            <div class="row">
+                <div class="col-md-12">
+                    <table class="table my-table">
+                        <thead class="thead-dark">
+                            <th>Game</th>
+                            <th>Price</th>
+                            <th>Price update time</th>
+                        </thead>
+                        {% if games[0]|length > 0 %} {% for game in games %}
+                        <tr>
+                            <td><a href="{{ game[1] }}" target="_blank">{{ game[0] }}</a></td>
+                            <td>{{ game[2] }} {{ game[4] }}</td>
+                            <td>{{ game[3] }}</td>
+                        </tr>
+                        {% endfor %} {% endif %}
+                    </table>
+                </div>
+            </div>
+            <br><br>
+            {% else %}
+                <br><br><br>
+                <div class="row">
+                <div class="col-md-12">
+                    <h2 class="text-black">All games list</h2><br>
+              {% if status_code == 1 %}
+                    <p>User is not subscribed, in order to list all games please subscribe.</p><br>
+              {% endif %}
+              {% if status_code == 2 %}
+                    <p>An error occurred during list of all games, please try again later.</p><br>
+              {% endif %}
+                </div>
+                </div><br>
+            {% endif %}
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-black small text-center text-white-50">
+        <div class="container">
+            &copy; All rights reserved to Cheap Play 2020 &copy;
+        </div>
+    </footer>
+
+    <!-- Bootstrap core JavaScript -->
+    <script src="vendor/jquery/jquery.min.js"></script>
+    <script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Plugin JavaScript -->
+    <script src="vendor/jquery-easing/jquery.easing.min.js"></script>
+
+    <!-- Custom scripts for this template -->
+    <script src="js/grayscale.min.js"></script>
+    <script src="js/main.js"></script>
+
+</body>
+
+</html>
