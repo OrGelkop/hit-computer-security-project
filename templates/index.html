@@ -7,9 +7,10 @@
     </head>
     <body>
       <div class="main">
-          <span style="float: left"><button>Forgot password</button></span>
-          <span><button>Register</button></span>
-          <span style="float: right"><button>Login</button></span>
+          {{ logged_user }}
+          <span style="float: left"><a href="{{url_for('forgot_password')}}" ><button>Forgot password</button></a></span>
+          <span><a href="{{url_for('register')}}" ><button>Register</button></a></span>
+          <span style="float: right"><a href="{{url_for('login')}}" ><button>Login</button></a></span>
           </br></br>
           <hr>
           <div>

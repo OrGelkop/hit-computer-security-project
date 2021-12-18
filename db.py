@@ -19,9 +19,15 @@ class DatabaseManagement:
                             (email, password))
         self.db.commit()
 
-    def get_user_password(self, email):
-        query = """SELECT password, locked FROM users WHERE email=%s"""
+    def get_user_by_email(self, email):
+        query = """SELECT id, password, locked FROM users WHERE email=%s"""
         self.cursor.execute(query, (email,))
+        result = self.cursor.fetchall()
+        return result
+
+    def get_user_by_uid(self, uid):
+        query = """SELECT email FROM users WHERE id=%s"""
+        self.cursor.execute(query, (uid,))
         result = self.cursor.fetchall()
         return result
 

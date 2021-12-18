@@ -13,13 +13,10 @@
           <button type="submit" name="submit">Register</button></br></br></br>
         </form>
         <span style="color: red">
-            {% for row in status_message %}
-                {{ row }}<br>
-            {% endfor %}
+            {{ status_message }}
         </span>
-        <span>
-            <button>Back to homepage</button>
-        </span>
+          <br/><br/>
+        <a href="{{url_for('homepage')}}"><button>Back to homepage</button></a>
       </div>
     </body>
 </html>
