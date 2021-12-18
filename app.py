@@ -148,5 +148,5 @@ def change_passowrd():
 
 if __name__ == "__main__":
     app.secret_key = os.urandom(12)
-    port = int(os.environ.get('PORT', 8080))
+    port = int(os.environ.get('PORT', 5000))
     app.run(host='0.0.0.0', port=port, debug=DEBUG_MODE)
