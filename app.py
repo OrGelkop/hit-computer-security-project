@@ -116,7 +116,7 @@ def forgot_password():
 
 
 @app.route('/change_password', methods=['GET', 'POST'])
-def login():
+def change_passowrd():
     if request.method == 'GET':
         return render_template('change_password.html')
     else:
@@ -126,7 +126,7 @@ def login():
         repeat_new_password = request.form.get('repeat_new_password')
         if new_password != repeat_new_password:
             return render_template('change_password.html', status_message="New Password and Repeat New Password are not"
-                                                                          "equal, please try again")
+                                                                          " equal, please try again")
 
         if old_password == "" or new_password == "" or repeat_new_password == "":
             return render_template('change_password.html', status_message="Make sure to fill all fields")
