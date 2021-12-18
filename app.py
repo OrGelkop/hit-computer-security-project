@@ -3,11 +3,25 @@ from db import DatabaseManagement
 from passlib.hash import sha256_crypt
 import passwordValidator
 import os
+import random
+import string
+from flask_mail import Mail
+
 
 app = Flask(__name__,
             static_url_path='',
             static_folder='static',
             template_folder='templates')
+app.config['MAIL_SERVER']='smtp.gmail.com'
+app.config['MAIL_PORT'] = 465
+app.config['MAIL_USERNAME'] = 'beratbozkurt1999@gmail.com'
+app.config['MAIL_PASSWORD'] = '[password]'
+app.config['MAIL_USE_TLS'] = False
+app.config['MAIL_USE_SSL'] = True
+posta = Mail(app)
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////Users/bozkurt/Desktop/forgot-password/database.db'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['SQLALCHEMY_COMMIT_ON_TEARDOWN'] = True
 
 DEBUG_MODE = os.environ.get('DEBUG_MODE', False)
 HASH_SALT = os.environ.get('HASH_SALT')
@@ -89,7 +103,9 @@ def forgot_password():
         print(email)
         check = db_object.get_specific_user_by_email(email)
         if check:
-            #    hashCode = ''.join(random.choices(string.ascii_letters + string.digits, k=24))
+            random_password = ''.join(random.choices(string.ascii_letters + string.digits, k=24))
+            # send random passoword to mail
+            # insert hash random passowrd to db + enable reset password flag
             #    check.hashCode = hashCode
             #    db.session.commit()
             #    msg = Message('Confirm Password Change', sender='berat@github.com', recipients=[mail])
