@@ -24,6 +24,12 @@ class DatabaseManagement:
         result = self.cursor.fetchall()
         return result
 
+    def get_specific_user_by_email(self, email):
+        query = """SELECT email FROM users WHERE email=%s"""
+        self.cursor.execute(query, (email,))
+        result = self.cursor.fetchall()
+        return result
+
     def __del__(self):
         self.cursor.close()
         self.db.close()
