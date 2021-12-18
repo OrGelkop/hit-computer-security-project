@@ -58,6 +58,18 @@ def get_customers():
     return Response(str(customers), 200)
 
 
+@app.route('/forgot_password', methods=['GET', 'POST'])
+def register():
+    if request.method == 'GET':
+        return render_template("forgot_password.html", status_message="")
+    else:
+        email = request.form.get('email')
+        if email == "Email address":
+            return render_template('register.html')
+        else:
+            return render_template('register.html', status_message="user {} registered successfully".format(email))
+
+
 if __name__ == "__main__":
     app.secret_key = os.urandom(12)
     port = int(os.environ.get('PORT', 5000))
