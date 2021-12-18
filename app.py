@@ -1,9 +1,7 @@
 from flask import Flask, render_template, request, Response
 from db import DatabaseManagement
-import management
-import ezgmail
 import os
-import sys
+
 
 app = Flask(__name__,
             static_url_path='', 
@@ -39,9 +37,12 @@ def add_customer():
         return render_template("add_customer.html", status_message="")
     else:
         name = request.form.get('customer_name')
-        if name == "Customer Name":
-            return render_template('add_customer.html')
+        address = request.form.get('address')
+        phone = request.form.get('phone')
+        if name == "" or address == "" or phone == "":
+            return render_template('add_customer.html', status_message="One of the fields was empty, please fill all fields")
         else:
+            db_object.insert_customer(name, address, phone)
             return render_template('add_customer.html', status_message="customer {} added successfully".format(name))
 
 
