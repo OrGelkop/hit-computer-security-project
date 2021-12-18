@@ -3,8 +3,6 @@ import psycopg2
 
 DATABASE_URL = os.environ.get('DATABASE_URL')
 
-conn = psycopg2.connect(DATABASE_URL, sslmode='require')
-
 
 class DatabaseManagement:
     def __init__(self):
@@ -13,9 +11,19 @@ class DatabaseManagement:
 
     def get_users_count(self):
         self.cursor.execute("SELECT count(*) FROM users")
+        result = self.cursor.fetchall()[0][0]
+        return result
+
+    def insert_customer(self, name, address, phone):
+        self.cursor.execute("""INSERT INTO customers (name, address, phone) VALUES (%s, %s, %s)""",
+                            (name, address, phone))
+        self.db.commit()
+
+    def get_customers(self):
+        self.cursor.execute("SELECT * FROM customers ORDER BY name")
         result = self.cursor.fetchall()
         return result
 
-    def close(self):
+    def __del__(self):
         self.cursor.close()
         self.db.close()
