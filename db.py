@@ -14,15 +14,37 @@ class DatabaseManagement:
         result = self.cursor.fetchall()[0][0]
         return result
 
-    def insert_customer(self, name, address, phone):
-        self.cursor.execute("""INSERT INTO customers (name, address, phone) VALUES (%s, %s, %s)""",
-                            (name, address, phone))
+    def insert_user(self, email, password):
+        self.cursor.execute("""INSERT INTO users (email, password) VALUES (%s, %s)""",
+                            (email, password))
         self.db.commit()
+
+    def update_user(self, email, password, reset_password_next_login):
+        self.cursor.execute("""UPDATE users SET password=%s, reset_password_next_login=%s WHERE email=%s""",
+                            (password, reset_password_next_login, email))
+        self.db.commit()
+
+    def get_user_password(self, email):
+        query = """SELECT password, locked FROM users WHERE email=%s"""
+        self.cursor.execute(query, (email,))
+        result = self.cursor.fetchall()
+        return result
 
     def get_customers(self):
         self.cursor.execute("SELECT * FROM customers ORDER BY name")
         result = self.cursor.fetchall()
         return result
+
+    def get_specific_user_by_email(self, email):
+        query = """SELECT email FROM users WHERE email=%s"""
+        self.cursor.execute(query, (email,))
+        result = self.cursor.fetchall()
+        return result
+
+    def insert_customer(self, name, address, phone):
+        self.cursor.execute("""INSERT INTO customers (name, address, phone) VALUES (%s, %s, %s)""",
+                            (name, address, phone))
+        self.db.commit()
 
     def __del__(self):
         self.cursor.close()
