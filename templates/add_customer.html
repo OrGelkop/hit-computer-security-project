@@ -7,12 +7,13 @@
     <body>
       <div class="form">
         <h1>Add customer</h1><br/>
-        <form name="add_customer" method="post" action="/handle_add_customer">
+        <form name="add_customer" method="post" action="/add_customer">
           <input type="text" name="customer_name" id="customer_name" value="Customer Name" /><br/><br/>
           <input type="text" name="address" id="address" value="Address" /><br/><br/>
           <input type="text" name="phone" id="phone" value="Phone number" /><br/><br/>
           <button type="submit" name="submit">Submit</button></br></br></br>
         </form>
+        {{ status_message }}
       </div>
     </body>
 </html>

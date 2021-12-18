@@ -21,14 +21,28 @@ def homepage():
     return render_template("index.html", customers=customers)
 
 
-@app.route('/register', methods=['GET'])
+@app.route('/register', methods=['GET', 'POST'])
 def register():
-    return render_template("register.html")
+    if request.method == 'GET':
+        return render_template("register.html", status_message="")
+    else:
+        email = request.form.get('email')
+        if email == "Email address":
+            return render_template('register.html')
+        else:
+            return render_template('register.html', status_message="user {} registered successfully".format(email))
 
 
-@app.route('/add_customer', methods=['GET'])
+@app.route('/add_customer', methods=['GET', 'POST'])
 def add_customer():
-    return render_template("add_customer.html")
+    if request.method == 'GET':
+        return render_template("add_customer.html", status_message="")
+    else:
+        name = request.form.get('customer_name')
+        if name == "Customer Name":
+            return render_template('add_customer.html')
+        else:
+            return render_template('add_customer.html', status_message="customer {} added successfully".format(name))
 
 
 @app.route('/get_users_count', methods=['GET'])
