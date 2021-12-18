@@ -13,34 +13,37 @@ knows_passwords_dictionary = config.get('main', 'dictionary')
 
 def validate_password(passwd):
     val = True
+    info = ""
 
     if len(passwd) < min_length:
-        print('Password length should be at least {}'.format(min_length))
+        info = info + 'Password length should be at least {}\n'.format(min_length)
         val = False
 
     if len(passwd) > max_length:
-        print('Password length should be not be greater than {}'.format(max()))
+        info = info + 'Password length should be not be greater than {}\n'.format(max())
         val = False
 
     if not any(char.isdigit() for char in passwd):
-        print('Password should have at least one numeric character')
+        info = info + 'Password should have at least one numeric character\n'
         val = False
 
     if not any(char.isupper() for char in passwd):
-        print('Password should have at least one uppercase letter')
+        info = info + 'Password should have at least one uppercase letter\n'
         val = False
 
     if not any(char.islower() for char in passwd):
-        print('Password should have at least one lowercase letter')
+        info = info + 'Password should have at least one lowercase letter\n'
         val = False
 
     if not any(char in punctuation for char in passwd):
-        print('Password should have at least one special character')
+        info = info + 'Password should have at least one special character\n'
         val = False
 
     if passwd in knows_passwords_dictionary:
-        print('Common passwords use is not permitted, please try to use another password')
+        info = info + 'Common passwords use is not permitted, please try to use another password\n'
         val = False
 
-    return val
-
+    return {
+        'status': val,
+        'info': info.split('\n')
+    }

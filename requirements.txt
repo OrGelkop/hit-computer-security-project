@@ -1,6 +1,7 @@
 Flask>=1.0.2
 psycopg2-binary>=2.8.3
 config-parser==0.0.1
+passlib==1.7.4
 
 
 requests>=2.6.0

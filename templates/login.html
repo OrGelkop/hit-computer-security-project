@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Register</title>
+        <link href="css/main.css" rel="stylesheet">
+    </head>
+    <body>
+      <div class="form">
+        <h1>Login</h1><br/>
+        <form name="login" method="post" action="/login">
+          <input type="text" name="email" id="email" placeholder="Email address" /><br/><br/>
+          <input type="password" name="password" id="password" placeholder="Password" /><br/><br/>
+          <button type="submit" name="submit">Login</button></br></br></br>
+        </form>
+        <span style="color: red">
+            {{ status_message }}
+        </span>
+        <span>
+            <button>Back to homepage</button>
+        </span>
+      </div>
+    </body>
+</html>
