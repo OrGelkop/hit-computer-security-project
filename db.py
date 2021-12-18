@@ -19,8 +19,9 @@ class DatabaseManagement:
                             (email, password))
         self.db.commit()
 
-    def update_password(self, email, password):
-        self.cursor.execute("""UPDATE users SET password=%s WHERE email=%s""", (password, email))
+    def update_user(self, email, password, reset_password_next_login):
+        self.cursor.execute("""UPDATE users SET password=%s, reset_password_next_login=%s WHERE email=%s""",
+                            (password, reset_password_next_login, email))
         self.db.commit()
 
     def get_user_password(self, email):

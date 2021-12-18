@@ -12,17 +12,19 @@ app = Flask(__name__,
             static_folder='static',
             template_folder='templates')
 
+MAIL_USERNAME = os.environ.get('MAIL_USER')
+MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD')
 app.config['MAIL_SERVER'] = 'smtp.gmail.com'
 app.config['MAIL_PORT'] = 465
-app.config['MAIL_USERNAME'] = os.environ.get('MAIL_USER')
-app.config['MAIL_PASSWORD'] = os.environ.get('MAIL_PASSWORD')
+app.config['MAIL_USERNAME'] = MAIL_USERNAME
+app.config['MAIL_PASSWORD'] = MAIL_PASSWORD
 app.config['MAIL_USE_TLS'] = False
 app.config['MAIL_USE_SSL'] = True
-#app.secret_key = 'some_secret'
+# app.secret_key = 'some_secret'
 mail_object = Mail(app)
-#app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////Users/bozkurt/Desktop/forgot-password/database.db'
-#app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-#app.config['SQLALCHEMY_COMMIT_ON_TEARDOWN'] = True
+# app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////Users/bozkurt/Desktop/forgot-password/database.db'
+# app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+# app.config['SQLALCHEMY_COMMIT_ON_TEARDOWN'] = True
 
 DEBUG_MODE = os.environ.get('DEBUG_MODE', False)
 HASH_SALT = os.environ.get('HASH_SALT')
@@ -99,49 +101,49 @@ def forgot_password():
         return render_template("forgot_password.html", status_message="")
     else:
         email = request.form.get('email')
-        # if email == "Email address":
-       # mail = request.form['mail']
-        print(email)
         check = db_object.get_specific_user_by_email(email)
         if check:
             random_password = ''.join(random.choices(string.ascii_letters + string.digits, k=24))
-            # send random passoword to mail
-            # insert hash random password to db + enable reset password flag
-            msg = Message('Confirm Password Change', sender='berat@github.com', recipients=[email])
+            msg = Message('Confirm Password Change', sender=MAIL_USERNAME, recipients=[email])
             msg.body = "Hello,\nWe've received a request to reset your password." \
                        "\nThis is your new generated password: " + random_password
             mail_object.send(msg)
             password_hashed = sha256_crypt.encrypt(random_password + HASH_SALT)
-            db_object.update_password(email, password_hashed)
-            #return '''
-            #            <form action="/" method="post">
-            #                <small>enter the email address of the account you forgot your password</small> <br>
-            #                <input type="email" name="mail" id="mail" placeholder="mail@mail.com"> <br>
-            #                <input type="submit" value="Submit">
-            #            </form>
-            #        '''
-
-            #    check.hashCode = hashCode
-            #    db.session.commit()
-
-            # else:
-            #    return '''
-            #            <form action="/" method="post">
-            #                <small>enter the email address of the account you forgot your password</small> <br>
-            #                <input type="email" name="mail" id="mail" placeholder="mail@mail.com"> <br>
-            #                <input type="submit" value="Submit">
-            #            </form>
-            #        '''
-            print(check)
+            db_object.update_user(email, password_hashed, 1)
             return render_template("forgot_password.html", status_message="check email")
         else:
             return render_template("forgot_password.html", status_message="given address not registered")
-        #check = User.query.filter_by(mail=mail).first()
 
 
-#    return render_template('register.html')
-# else:
-#    return render_template('register.html', status_message="user {} registered successfully".format(email))
+@app.route('/change_password', methods=['GET', 'POST'])
+def login():
+    if request.method == 'GET':
+        return render_template('change_password.html')
+    else:
+        email = request.form.get('email')
+        old_password = request.form.get('old_password')
+        new_password = request.form.get('new_password')
+        repeat_new_password = request.form.get('repeat_new_password')
+        if new_password != repeat_new_password:
+            return render_template('change_password.html', status_message="New Password and Repeat New Password are not"
+                                                                          "equal, please try again")
+
+        if old_password == "" or new_password == "" or repeat_new_password == "":
+            return render_template('change_password.html', status_message="Make sure to fill all fields")
+
+        res = db_object.get_user_password(email)
+        stored_password = res[0][0]
+        is_locked = res[0][1]
+
+        if is_locked:
+            return render_template('change_password.html', status_message="Your user is locked, please contact administrator")
+
+        if sha256_crypt.verify(old_password + HASH_SALT, stored_password):
+            password_hashed = sha256_crypt.encrypt(new_password + HASH_SALT)
+            db_object.update_user(email, password_hashed, 0)
+            return render_template('change_password.html', status_message="Change password succeeded")
+        else:
+            return render_template('change_password.html', status_message="Change password failed")
 
 
 if __name__ == "__main__":
