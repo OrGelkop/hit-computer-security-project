@@ -5,23 +5,24 @@ import passwordValidator
 import os
 import random
 import string
-from flask_mail import Mail
-
+from flask_mail import Mail, Message
 
 app = Flask(__name__,
             static_url_path='',
             static_folder='static',
             template_folder='templates')
-app.config['MAIL_SERVER']='smtp.gmail.com'
+
+app.config['MAIL_SERVER'] = 'smtp.gmail.com'
 app.config['MAIL_PORT'] = 465
-app.config['MAIL_USERNAME'] = 'beratbozkurt1999@gmail.com'
-app.config['MAIL_PASSWORD'] = '[password]'
+app.config['MAIL_USERNAME'] = os.environ.get('MAIL_USER')
+app.config['MAIL_PASSWORD'] = os.environ.get('MAIL_PASSWORD')
 app.config['MAIL_USE_TLS'] = False
 app.config['MAIL_USE_SSL'] = True
-posta = Mail(app)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////Users/bozkurt/Desktop/forgot-password/database.db'
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.config['SQLALCHEMY_COMMIT_ON_TEARDOWN'] = True
+#app.secret_key = 'some_secret'
+mail_object = Mail(app)
+#app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////Users/bozkurt/Desktop/forgot-password/database.db'
+#app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+#app.config['SQLALCHEMY_COMMIT_ON_TEARDOWN'] = True
 
 DEBUG_MODE = os.environ.get('DEBUG_MODE', False)
 HASH_SALT = os.environ.get('HASH_SALT')
@@ -105,19 +106,24 @@ def forgot_password():
         if check:
             random_password = ''.join(random.choices(string.ascii_letters + string.digits, k=24))
             # send random passoword to mail
-            # insert hash random passowrd to db + enable reset password flag
+            # insert hash random password to db + enable reset password flag
+            msg = Message('Confirm Password Change', sender='berat@github.com', recipients=[email])
+            msg.body = "Hello,\nWe've received a request to reset your password." \
+                       "\nThis is your new generated password: " + random_password
+            mail_object.send(msg)
+            password_hashed = sha256_crypt.encrypt(random_password + HASH_SALT)
+            db_object.update_password(email, password_hashed)
+            #return '''
+            #            <form action="/" method="post">
+            #                <small>enter the email address of the account you forgot your password</small> <br>
+            #                <input type="email" name="mail" id="mail" placeholder="mail@mail.com"> <br>
+            #                <input type="submit" value="Submit">
+            #            </form>
+            #        '''
+
             #    check.hashCode = hashCode
             #    db.session.commit()
-            #    msg = Message('Confirm Password Change', sender='berat@github.com', recipients=[mail])
-            #    msg.body = "Hello,\nWe've received a request to reset your password. If you want to reset your password, click the link below and enter your new password\n http://localhost:5000/" + check.hashCode
-            #    posta.send(msg)
-            #    return '''
-            #                <form action="/" method="post">
-            #                    <small>enter the email address of the account you forgot your password</small> <br>
-            #                    <input type="email" name="mail" id="mail" placeholder="mail@mail.com"> <br>
-            #                    <input type="submit" value="Submit">
-            #                </form>
-            #            '''
+
             # else:
             #    return '''
             #            <form action="/" method="post">

@@ -19,6 +19,10 @@ class DatabaseManagement:
                             (email, password))
         self.db.commit()
 
+    def update_password(self, email, password):
+        self.cursor.execute("""UPDATE users SET password=%s WHERE email=%s""", (password, email))
+        self.db.commit()
+
     def get_user_password(self, email):
         query = """SELECT password, locked FROM users WHERE email=%s"""
         self.cursor.execute(query, (email,))
