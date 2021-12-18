@@ -1,7 +1,6 @@
 from flask import Flask, render_template, request, url_for
 from flask_login import LoginManager, login_user, logout_user, current_user, login_required
 from werkzeug.utils import redirect
-
 from db import DatabaseManagement
 from passlib.hash import sha256_crypt
 from user import User
@@ -11,16 +10,19 @@ import random
 import string
 from flask_mail import Mail, Message
 
-DEBUG_MODE = os.environ.get('DEBUG_MODE', False)
-HASH_SALT = os.environ.get('HASH_SALT')
-
 app = Flask(__name__,
             static_url_path='',
             static_folder='static',
             template_folder='templates')
 
+DEBUG_MODE = os.environ.get('DEBUG_MODE', False)
+HASH_SALT = os.environ.get('HASH_SALT')
 MAIL_USERNAME = os.environ.get('MAIL_USER')
 MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD')
+login_manager = LoginManager()
+login_manager.init_app(app)
+db_object = DatabaseManagement()
+
 app.config['MAIL_SERVER'] = 'smtp.gmail.com'
 app.config['MAIL_PORT'] = 465
 app.config['MAIL_USERNAME'] = MAIL_USERNAME
@@ -32,12 +34,6 @@ mail_object = Mail(app)
 # app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////Users/bozkurt/Desktop/forgot-password/database.db'
 # app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 # app.config['SQLALCHEMY_COMMIT_ON_TEARDOWN'] = True
-
-DEBUG_MODE = os.environ.get('DEBUG_MODE', False)
-HASH_SALT = os.environ.get('HASH_SALT')
-login_manager = LoginManager()
-login_manager.init_app(app)
-db_object = DatabaseManagement()
 
 
 @login_manager.user_loader
@@ -143,7 +139,7 @@ def forgot_password():
 
 
 @app.route('/change_password', methods=['GET', 'POST'])
-def change_passowrd():
+def change_password():
     if request.method == 'GET':
         return render_template('change_password.html')
     else:
@@ -158,9 +154,9 @@ def change_passowrd():
         if old_password == "" or new_password == "" or repeat_new_password == "":
             return render_template('change_password.html', status_message="Make sure to fill all fields")
 
-        res = db_object.get_user_password(email)
-        stored_password = res[0][0]
-        is_locked = res[0][1]
+        res = db_object.get_user_by_email(email)
+        stored_password = res[0][1]
+        is_locked = res[0][2]
 
         if is_locked:
             return render_template('change_password.html', status_message="Your user is locked, please contact administrator")
