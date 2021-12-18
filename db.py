@@ -19,6 +19,11 @@ class DatabaseManagement:
                             (email, password))
         self.db.commit()
 
+    def update_user(self, email, password, reset_password_next_login):
+        self.cursor.execute("""UPDATE users SET password=%s, reset_password_next_login=%s WHERE email=%s""",
+                            (password, reset_password_next_login, email))
+        self.db.commit()
+
     def get_user_by_email(self, email):
         query = """SELECT id, password, locked FROM users WHERE email=%s"""
         self.cursor.execute(query, (email,))
@@ -33,6 +38,12 @@ class DatabaseManagement:
 
     def get_customers(self):
         self.cursor.execute("SELECT * FROM customers ORDER BY name")
+        result = self.cursor.fetchall()
+        return result
+
+    def get_specific_user_by_email(self, email):
+        query = """SELECT email FROM users WHERE email=%s"""
+        self.cursor.execute(query, (email,))
         result = self.cursor.fetchall()
         return result
 
