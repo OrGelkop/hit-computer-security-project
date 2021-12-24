@@ -52,6 +52,31 @@ class DatabaseManagement:
                             (name, address, phone))
         self.db.commit()
 
+    def reset_login_attempts(self, email):
+        self.cursor.execute("""UPDATE users SET login_retries=0 WHERE email=%s""", email)
+        self.db.commit()
+
+    def get_login_attempts(self, email):
+        query = """SELECT login_retries from users WHERE email=%s"""
+        self.cursor.execute(query, (email,))
+        result = self.cursor.fetchall()
+        return result
+
+    def update_login_attempts(self, login_attempts, email):
+        self.cursor.execute("""UPDATE users SET login_retries=%s WHERE email=%s""", (login_attempts, email))
+        self.db.commit()
+
+    def lock_user(self, email):
+        query = """UPDATE users SET locked=1 WHERE email=%s"""
+        self.cursor.execute(query, (email,))
+        self.db.commit()
+
+    def unlock_user(self, email):
+        query = """UPDATE users SET locked=0 WHERE email=%s"""
+        self.cursor.execute(query, (email,))
+
+        self.db.commit()
+
     def __del__(self):
         self.cursor.close()
         self.db.close()

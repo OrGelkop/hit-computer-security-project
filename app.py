@@ -9,6 +9,11 @@ import os
 import random
 import string
 from flask_mail import Mail, Message
+import configparser
+
+config = configparser.RawConfigParser()
+configFilePath = './config.ini'
+config.read(configFilePath)
 
 app = Flask(__name__,
             static_url_path='',
@@ -34,7 +39,7 @@ mail_object = Mail(app)
 # app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////Users/bozkurt/Desktop/forgot-password/database.db'
 # app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 # app.config['SQLALCHEMY_COMMIT_ON_TEARDOWN'] = True
-
+RETRY_COUNT = int(config.get('main', 'login_retries'))
 
 @login_manager.user_loader
 def load_user(uid):
@@ -81,18 +86,22 @@ def login():
             return render_template('login.html', status_message="Make sure to fill all fields")
         else:
             res = db_object.get_user_by_email(email)
+            if not res:
+                return render_template('login.html', status_message="User not exists")
             user_id = res[0][0]
             stored_password = res[0][1]
             is_locked = res[0][2]
 
             if is_locked:
-                return render_template('login.html', status_message="Your user is locked, please contact administrator")
+                return render_template('login.html', status_message="User '{}' is locked".format(email))
 
             if sha256_crypt.verify(password + HASH_SALT, stored_password):
-                login_user(User(user_id, email, password))
-                return render_template('login.html', status_message="Login successful")
+                # login_user(User(user_id, email, password))
+                return successful_login(user_id, email, password)
+                #return render_template('login.html', status_message="Login successful")
             else:
-                return render_template('login.html', status_message="Login failed")
+                return unsuccessful_login(email)
+                #return render_template('login.html', status_message="Login failed")
 
 
 @app.route('/logout')
@@ -159,7 +168,7 @@ def change_password():
         is_locked = res[0][2]
 
         if is_locked:
-            return render_template('change_password.html', status_message="Your user is locked, please contact administrator")
+            return render_template('change_password.html', status_message="User '{}' is locked".format(email))
 
         if sha256_crypt.verify(old_password + HASH_SALT, stored_password):
             password_hashed = sha256_crypt.encrypt(new_password + HASH_SALT)
@@ -167,6 +176,24 @@ def change_password():
             return render_template('change_password.html', status_message="Change password succeeded")
         else:
             return render_template('change_password.html', status_message="Change password failed")
+
+
+def successful_login(user_id, email, password):
+    login_user(User(user_id, email, password))
+    db_object.reset_login_attempts(email)
+
+
+def unsuccessful_login(email):
+    exist_login_attempts = db_object.get_login_attempts(email)[0][0]
+    if exist_login_attempts == RETRY_COUNT-1:
+        db_object.lock_user(email)
+        return render_template('login.html', status_message="User '{}' is locked".format(email))
+    else:
+        exist_login_attempts += 1
+        db_object.update_login_attempts(exist_login_attempts, email)
+        return render_template('login.html',
+                               status_message="Login failed, {} retries left. ".format
+                               (RETRY_COUNT-exist_login_attempts))
 
 
 if __name__ == "__main__":
