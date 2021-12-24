@@ -25,10 +25,12 @@ login_manager.init_app(app)
 
 DEBUG_MODE = os.environ.get('DEBUG_MODE', False)
 HASH_SALT = os.environ.get('HASH_SALT')
+MAIL_USERNAME = os.environ.get('MAIL_USERNAME')
+MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD')
 PASSWORDS_HISTORY = int(config.get('main', 'passwords_history'))
 LOGIN_RETRY_THRESHOLD = int(config.get('main', 'login_retries'))
-app.config['MAIL_USERNAME'] = os.environ.get('MAIL_USER')
-app.config['MAIL_PASSWORD'] = os.environ.get('MAIL_PASSWORD')
+app.config['MAIL_USERNAME'] = MAIL_USERNAME
+app.config['MAIL_PASSWORD'] = MAIL_PASSWORD
 app.config['MAIL_SERVER'] = 'smtp.gmail.com'
 app.config['MAIL_PORT'] = 465
 app.config['MAIL_USE_TLS'] = False
@@ -175,7 +177,8 @@ def change_password():
         if old_password == "" or new_password == "" or repeat_new_password == "":
             return render_template('change_password.html', status_message=["Make sure to fill all fields."])
         elif new_password != repeat_new_password:
-            return render_template('change_password.html', status_message=["Repeat password differs from new password, please try again."])
+            return render_template('change_password.html',
+                                   status_message=["Repeat password differs from new password, please try again."])
         else:
             validate_password_resp = passwordValidator.validate_password(new_password)
             if not validate_password_resp['status']:
@@ -187,31 +190,43 @@ def change_password():
         previous_passwords = res[0][3].split(' ')
 
         if is_locked:
-            return render_template('change_password.html', status_message=["Your user is locked, please contact administrator."])
+            return render_template('change_password.html',
+                                   status_message=["Your user is locked, please contact administrator."])
 
         if not sha256_crypt.verify(old_password + HASH_SALT, stored_password):
-            return render_template('change_password.html', status_message=["Cannot change password since current password is incorrect.",
-                                                                           "Please try again"])
+            return render_template('change_password.html',
+                                   status_message=["Cannot change password since current password is incorrect.",
+                                                   "Please try again"])
 
         for prev_pass in previous_passwords:  # Iterating over previous passwords to prevent repeat
             if sha256_crypt.verify(new_password + HASH_SALT, prev_pass):
                 return render_template('change_password.html',
-                                       status_message=["Do not repeat one of your {} previous passwords.".format(PASSWORDS_HISTORY)])
+                                       status_message=["Do not repeat one of your {} previous passwords."
+                                       .format(PASSWORDS_HISTORY)])
 
         password_hashed = sha256_crypt.hash(new_password + HASH_SALT)
         previous_passwords.insert(0, stored_password)
 
+        print(len(previous_passwords))
+        print(previous_passwords)
+
         if len(previous_passwords) > PASSWORDS_HISTORY:  # Rotating previous passwords list based on size in configuration
+            print("removing oldest password")
             previous_passwords.pop()
 
-        previous_passwords_list = ' '.join(previous_passwords)
-        db_object.update_user(email, password_hashed, previous_passwords_list, 0)
-        return render_template('change_password.html', status_message=["Change password succeeded"])
+        previous_passwords_str = ' '.join(previous_passwords)
+        result = db_object.update_user(email, password_hashed, previous_passwords_str, 0)
+        if result == 0:
+            return render_template('change_password.html', status_message=["Password changed successfully."])
+        else:
+            return render_template('change_password.html', status_message=["Failed to change password.",
+                                                                           "error: {}".format(result)])
 
 
 def successful_login(user_id, email, password):
     login_user(User(user_id, email, password))
     db_object.update_login_attempts(0, email)
+    return render_template('login.html', status_message=["User {} logged in successfully.".format(email)])
 
 
 def unsuccessful_login(email):
@@ -229,12 +244,12 @@ def unsuccessful_login(email):
         result = db_object.update_login_attempts(login_retries, email)
         if result == 0:
             return render_template('login.html',
-                                   status_message="Login failed, {} retries left.".format
-                                   (LOGIN_RETRY_THRESHOLD - login_retries))
+                                   status_message=["Login failed, {} retries left.".format
+                                                   (LOGIN_RETRY_THRESHOLD - login_retries)])
         else:
             return render_template('login.html',
-                                   status_message="Failed to increase login retries, please contact administrator.".format
-                                   (LOGIN_RETRY_THRESHOLD - login_retries))
+                                   status_message=["Failed to increase login retries, please contact administrator."
+                                   .format(LOGIN_RETRY_THRESHOLD - login_retries)])
 
 
 if __name__ == "__main__":

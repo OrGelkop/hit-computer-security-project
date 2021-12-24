@@ -101,7 +101,7 @@ class DatabaseManagement:
             cur = self.db.cursor()
             query = """SELECT login_retries from users WHERE email=%s"""
             cur.execute(query, (email,))
-            result = self.cursor.fetchall()
+            result = cur.fetchall()
             return result
         except psycopg2.DatabaseError as error:
             result = error
@@ -144,7 +144,7 @@ class DatabaseManagement:
         result = 0
         try:
             cur = self.db.cursor()
-            query = """UPDATE users SET locked=0 WHERE email=%s"""
+            query = """UPDATE users SET login_retries=0, locked=0 WHERE email=%s"""
             cur.execute(query, (email,))
             self.db.commit()
         except psycopg2.DatabaseError as error:

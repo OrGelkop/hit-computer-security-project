@@ -8,7 +8,7 @@
     <body>
       <div class="main">
           {% if is_logged %}
-            <span>{{ logged_user_message }}</span>
+            <span style="color: red">{{ logged_user_message }}</span>
           {% endif %}
           <br/>
           {% if not is_logged %}
