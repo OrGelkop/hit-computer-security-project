@@ -46,9 +46,12 @@ def load_user(uid):
 @app.route('/', methods=['GET'])
 def homepage():
     customers = db_object.get_customers()
-    print(type(current_user))
-    print(current_user)
-    return render_template("index.html", customers=customers, logged_user=current_user)
+    if current_user.is_authenticated:
+        logged_user_message = "Welcome, {}".format(str(current_user)).replace("'", "")
+    else:
+        logged_user_message = ""
+    return render_template("index.html", customers=customers, is_logged=current_user.is_authenticated,
+                           logged_user_message=logged_user_message)
 
 
 @app.route('/register', methods=['GET', 'POST'])
@@ -59,7 +62,7 @@ def register():
         email = request.form.get('email')
         password = request.form.get('password')
         if email == "" or password == "":
-            return render_template('register.html', status_message="Make sure to fill all fields")
+            return render_template('register.html', status_message=["Make sure to fill all fields"])
         else:
             validate_password_resp = passwordValidator.validate_password(password)
             if not validate_password_resp['status']:
@@ -67,7 +70,7 @@ def register():
 
             password_hashed = sha256_crypt.encrypt(password + HASH_SALT)
             db_object.insert_user(email, password_hashed)
-            return render_template('register.html', status_message="User {} registered successfully".format(email))
+            return render_template('register.html', status_message=["User {} registered successfully"].format(email))
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -98,7 +101,7 @@ def login():
 @app.route('/logout')
 def logout():
     logout_user()
-    return redirect(url_for('homepage'))
+    return render_template('logout.html')
 
 
 @app.route('/add_customer', methods=['GET', 'POST'])
@@ -139,6 +142,7 @@ def forgot_password():
 
 
 @app.route('/change_password', methods=['GET', 'POST'])
+@login_required
 def change_password():
     if request.method == 'GET':
         return render_template('change_password.html')
@@ -147,26 +151,29 @@ def change_password():
         old_password = request.form.get('old_password')
         new_password = request.form.get('new_password')
         repeat_new_password = request.form.get('repeat_new_password')
-        if new_password != repeat_new_password:
-            return render_template('change_password.html', status_message="New Password and Repeat New Password are not"
-                                                                          " equal, please try again")
 
         if old_password == "" or new_password == "" or repeat_new_password == "":
-            return render_template('change_password.html', status_message="Make sure to fill all fields")
+            return render_template('change_password.html', status_message=["Make sure to fill all fields"])
+        elif new_password != repeat_new_password:
+            return render_template('change_password.html', status_message=["New Password and Repeat New Password are not equal, please try again"])
+        else:
+            validate_password_resp = passwordValidator.validate_password(new_password)
+            if not validate_password_resp['status']:
+                return render_template('change_password.html', status_message=validate_password_resp['info'])
 
         res = db_object.get_user_by_email(email)
         stored_password = res[0][1]
         is_locked = res[0][2]
 
         if is_locked:
-            return render_template('change_password.html', status_message="Your user is locked, please contact administrator")
+            return render_template('change_password.html', status_message=["Your user is locked, please contact administrator"])
 
         if sha256_crypt.verify(old_password + HASH_SALT, stored_password):
             password_hashed = sha256_crypt.encrypt(new_password + HASH_SALT)
             db_object.update_user(email, password_hashed, 0)
-            return render_template('change_password.html', status_message="Change password succeeded")
+            return render_template('change_password.html', status_message=["Change password succeeded"])
         else:
-            return render_template('change_password.html', status_message="Change password failed")
+            return render_template('change_password.html', status_message=["Change password failed"])
 
 
 if __name__ == "__main__":
