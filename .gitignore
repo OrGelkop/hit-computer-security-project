@@ -3,3 +3,4 @@ setenv.*
 debug/
 venv/
 .idea/
+__pycache__/

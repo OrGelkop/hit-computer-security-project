@@ -14,10 +14,12 @@
           <button type="submit" name="submit">Submit</button></br></br></br>
         </form>
         <span style="color: red">
-            {{ status_message }}
+            {% for line in status_message %}
+                {{ line }}</br>
+            {% endfor %}
         </span>
           <br/><br/>
-          <a href="{{url_for('homepage')}}"><button>Back to homepage</button></a>
+          <a href="{{url_for('homepage', _scheme='https')}}"><button>Back to homepage</button></a>
       </div>
     </body>
 </html>
