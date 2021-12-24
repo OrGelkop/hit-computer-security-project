@@ -96,5 +96,64 @@ class DatabaseManagement:
 
         return result
 
+    def get_login_attempts(self, email):
+        try:
+            cur = self.db.cursor()
+            query = """SELECT login_retries from users WHERE email=%s"""
+            cur.execute(query, (email,))
+            result = self.cursor.fetchall()
+            return result
+        except psycopg2.DatabaseError as error:
+            result = error
+        finally:
+            if cur is not None:
+                cur.close()
+
+        return result
+
+    def update_login_attempts(self, login_attempts, email):
+        result = 0
+        try:
+            cur = self.db.cursor()
+            cur.execute("""UPDATE users SET login_retries=%s WHERE email=%s""", (login_attempts, email))
+            self.db.commit()
+        except psycopg2.DatabaseError as error:
+            result = error
+        finally:
+            if cur is not None:
+                cur.close()
+
+        return result
+
+    def lock_user(self, email):
+        result = 0
+        try:
+            cur = self.db.cursor()
+            query = """UPDATE users SET locked=1 WHERE email=%s"""
+            cur.execute(query, (email,))
+            self.db.commit()
+        except psycopg2.DatabaseError as error:
+            result = error
+        finally:
+            if cur is not None:
+                cur.close()
+
+        return result
+
+    def unlock_user(self, email):
+        result = 0
+        try:
+            cur = self.db.cursor()
+            query = """UPDATE users SET locked=0 WHERE email=%s"""
+            cur.execute(query, (email,))
+            self.db.commit()
+        except psycopg2.DatabaseError as error:
+            result = error
+        finally:
+            if cur is not None:
+                cur.close()
+
+        return result
+
     def __del__(self):
         self.db.close()

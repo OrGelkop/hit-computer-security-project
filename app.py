@@ -19,21 +19,20 @@ app = Flask(__name__,
             static_folder='static',
             template_folder='templates')
 
-DEBUG_MODE = os.environ.get('DEBUG_MODE', False)
-HASH_SALT = os.environ.get('HASH_SALT')
-MAIL_USERNAME = os.environ.get('MAIL_USER')
-MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD')
+db_object = DatabaseManagement()
 login_manager = LoginManager()
 login_manager.init_app(app)
-db_object = DatabaseManagement()
 
+DEBUG_MODE = os.environ.get('DEBUG_MODE', False)
+HASH_SALT = os.environ.get('HASH_SALT')
+PASSWORDS_HISTORY = int(config.get('main', 'passwords_history'))
+LOGIN_RETRY_THRESHOLD = int(config.get('main', 'login_retries'))
+app.config['MAIL_USERNAME'] = os.environ.get('MAIL_USER')
+app.config['MAIL_PASSWORD'] = os.environ.get('MAIL_PASSWORD')
 app.config['MAIL_SERVER'] = 'smtp.gmail.com'
 app.config['MAIL_PORT'] = 465
-app.config['MAIL_USERNAME'] = MAIL_USERNAME
-app.config['MAIL_PASSWORD'] = MAIL_PASSWORD
 app.config['MAIL_USE_TLS'] = False
 app.config['MAIL_USE_SSL'] = True
-PASSWORDS_HISTORY = int(config.get('main', 'passwords_history'))
 mail_object = Mail(app)
 
 
@@ -106,10 +105,9 @@ def login():
             return render_template('login.html', status_message=["Your user is locked, please contact administrator"])
 
         if sha256_crypt.verify(password + HASH_SALT, stored_password):
-            login_user(User(user_id, email, password))
-            return render_template('login.html', status_message=["User {} logged in successfully".format(email)])
+            return successful_login(user_id, email, password)
         else:
-            return render_template('login.html', status_message=["Incorrect password for user {}, please try again.".format(email)])
+            return unsuccessful_login(email)
 
 
 @app.route('/logout')
@@ -209,6 +207,34 @@ def change_password():
         previous_passwords_list = ' '.join(previous_passwords)
         db_object.update_user(email, password_hashed, previous_passwords_list, 0)
         return render_template('change_password.html', status_message=["Change password succeeded"])
+
+
+def successful_login(user_id, email, password):
+    login_user(User(user_id, email, password))
+    db_object.update_login_attempts(0, email)
+
+
+def unsuccessful_login(email):
+    login_retries = db_object.get_login_attempts(email)[0][0]
+
+    if login_retries == LOGIN_RETRY_THRESHOLD - 1:  # User reached max login attempts
+        result = db_object.lock_user(email)
+        if result == 0:
+            return render_template('login.html', status_message=["Your user is locked, please contact administrator."])
+        else:
+            return render_template('login.html', status_message=["Failed to lock user, please contact administrator."])
+
+    else:  # Increasing login retries amount
+        login_retries += 1
+        result = db_object.update_login_attempts(login_retries, email)
+        if result == 0:
+            return render_template('login.html',
+                                   status_message="Login failed, {} retries left.".format
+                                   (LOGIN_RETRY_THRESHOLD - login_retries))
+        else:
+            return render_template('login.html',
+                                   status_message="Failed to increase login retries, please contact administrator.".format
+                                   (LOGIN_RETRY_THRESHOLD - login_retries))
 
 
 if __name__ == "__main__":
