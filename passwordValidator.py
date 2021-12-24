@@ -20,7 +20,7 @@ def validate_password(passwd):
         val = False
 
     if len(passwd) > max_length:
-        info = info + 'Password length should be not be greater than {}\n'.format(max_)
+        info = info + 'Password length should be not be greater than {}\n'.format(max_length)
         val = False
 
     if not any(char.isdigit() for char in passwd):

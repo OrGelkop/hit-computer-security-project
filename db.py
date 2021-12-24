@@ -7,51 +7,94 @@ DATABASE_URL = os.environ.get('DATABASE_URL')
 class DatabaseManagement:
     def __init__(self):
         self.db = psycopg2.connect(DATABASE_URL, sslmode='require')
-        self.cursor = self.db.cursor()
 
-    def get_users_count(self):
-        self.cursor.execute("SELECT count(*) FROM users")
-        result = self.cursor.fetchall()[0][0]
+    def insert_user(self, email, password, previous_passwords_list):
+        result = 0
+        try:
+            cur = self.db.cursor()
+            cur.execute("""INSERT INTO users (email, password, previous_passwords_list) VALUES (%s, %s, %s)""",
+                        (email, password, previous_passwords_list))
+            self.db.commit()
+        except psycopg2.DatabaseError as error:
+            result = error
+        finally:
+            if cur is not None:
+                cur.close()
+
         return result
 
-    def insert_user(self, email, password):
-        self.cursor.execute("""INSERT INTO users (email, password) VALUES (%s, %s)""",
-                            (email, password))
-        self.db.commit()
+    def update_user(self, email, password, previous_passwords_list, reset_password_next_login):
+        result = 0
+        try:
+            cur = self.db.cursor()
+            cur.execute("""UPDATE users SET password=%s, previous_passwords_list=%s, reset_password_next_login=%s WHERE email=%s""",
+                        (password, previous_passwords_list, reset_password_next_login, email))
+            self.db.commit()
+        except psycopg2.DatabaseError as error:
+            result = error
+        finally:
+            if cur is not None:
+                cur.close()
 
-    def update_user(self, email, password, reset_password_next_login):
-        self.cursor.execute("""UPDATE users SET password=%s, reset_password_next_login=%s WHERE email=%s""",
-                            (password, reset_password_next_login, email))
-        self.db.commit()
+        return result
 
     def get_user_by_email(self, email):
-        query = """SELECT id, password, locked FROM users WHERE email=%s"""
-        self.cursor.execute(query, (email,))
-        result = self.cursor.fetchall()
+        try:
+            cur = self.db.cursor()
+            query = """SELECT id, password, locked, previous_passwords_list FROM users WHERE email=%s"""
+            cur.execute(query, (email,))
+            result = cur.fetchall()
+            return result
+        except psycopg2.DatabaseError as error:
+            result = error
+        finally:
+            if cur is not None:
+                cur.close()
+
         return result
 
-    def get_user_by_uid(self, uid):
-        query = """SELECT email FROM users WHERE id=%s"""
-        self.cursor.execute(query, (uid,))
-        result = self.cursor.fetchall()
+    def get_user_email_by_uid(self, uid):
+        try:
+            cur = self.db.cursor()
+            query = """SELECT email FROM users WHERE id=%s"""
+            cur.execute(query, (uid,))
+            result = cur.fetchall()
+            return result
+        except psycopg2.DatabaseError as error:
+            result = error
+        finally:
+            if cur is not None:
+                cur.close()
+
         return result
 
     def get_customers(self):
-        self.cursor.execute("SELECT * FROM customers ORDER BY name")
-        result = self.cursor.fetchall()
-        return result
+        try:
+            cur = self.db.cursor()
+            cur.execute("SELECT * FROM customers ORDER BY name")
+            result = cur.fetchall()
+            return result
+        except psycopg2.DatabaseError as error:
+            result = error
+        finally:
+            if cur is not None:
+                cur.close()
 
-    def get_specific_user_by_email(self, email):
-        query = """SELECT email FROM users WHERE email=%s"""
-        self.cursor.execute(query, (email,))
-        result = self.cursor.fetchall()
         return result
 
     def insert_customer(self, name, address, phone):
-        self.cursor.execute("""INSERT INTO customers (name, address, phone) VALUES (%s, %s, %s)""",
-                            (name, address, phone))
-        self.db.commit()
+        result = 0
+        try:
+            cur = self.db.cursor()
+            cur.execute("""INSERT INTO customers (name, address, phone) VALUES (%s, %s, %s)""", (name, address, phone))
+            self.db.commit()
+        except psycopg2.DatabaseError as error:
+            result = error
+        finally:
+            if cur is not None:
+                cur.close()
+
+        return result
 
     def __del__(self):
-        self.cursor.close()
         self.db.close()
