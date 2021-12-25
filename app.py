@@ -41,7 +41,8 @@ mail_object = Mail(app)
 
 @login_manager.user_loader
 def load_user(uid):
-    email = db_object.get_user_email_by_uid(uid)[0][0]
+    result = db_object.get_user_email_by_uid(uid)
+    email = result[0][0]
     is_active = True
     return User(uid, email, is_active)
 
@@ -219,6 +220,12 @@ def change_password(status_message=""):
         else:
             return render_template('change_password.html', status_message=["Failed to change password.",
                                                                            "error: {}".format(result)])
+
+
+@app.route('/manage_users', methods=['GET', 'POST'])
+@login_required
+def manage_users():
+    return "test"
 
 
 def successful_login(user_id, email, password, reset_password_needed):

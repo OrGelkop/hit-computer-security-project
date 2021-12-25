@@ -11,12 +11,11 @@ class User():
     def is_active(self):
         return self.is_active
 
-    def is_anonymous(self):
-        return False
+#    def is_anonymous(self):
+#        return False
 
     def get_id(self):
         return self.uid
 
     def __repr__(self):
         return '%r' % self.username
-

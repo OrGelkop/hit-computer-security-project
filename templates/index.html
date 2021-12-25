@@ -17,6 +17,9 @@
               <span style="float: right"><a href="{{url_for('login')}}" ><button>Login</button></a></span>
           {% else %}
               <span style="float: left"><a href="{{url_for('change_password')}}" ><button>Change password</button></a></span>
+                {% if is_admin %}
+                <span><a href="{{url_for('manage_users')}}" ><button>Manage users</button></a></span>
+                {% endif %}
               <span style="float: right"><a href="{{url_for('logout')}}" ><button>Logout</button></a></span>
           {% endif %}
           </br></br>
