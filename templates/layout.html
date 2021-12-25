@@ -23,7 +23,7 @@
             {% if not is_logged %}
             <ul class="navbar-nav">
                 <li class="nav-item">
-                    <a id="home_link" class="nav-link" aria-current="page" href="/">Home</a>
+                    <a class="nav-link" aria-current="page" href="/">Home</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="{{url_for('login')}}">Login</a>
@@ -34,6 +34,11 @@
             </ul>
             {% else %}
             <span class="navbar-brand mb-0 h1">{{ logged_user_message }}</span>
+            <ul class="navbar-nav">
+                <li class="nav-item">
+                    <a class="nav-link" href="{{url_for('logout')}}">Logout</a>
+                </li>
+            </ul>
             {% endif %}
         </div>
     </div>
