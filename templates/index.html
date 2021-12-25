@@ -8,7 +8,7 @@
 {% endblock %}
 
 {% block content %}
-<div class="main">
+<div class="container-fluid">
     <div>
         <span><a href="{{url_for('forgot_password')}}"><button>Forgot password</button></a></span>
         <span><a href="{{url_for('change_password')}}"><button>Change password</button></a></span>
@@ -16,25 +16,31 @@
         <span><a href="{{url_for('manage_users')}}"><button>Manage users</button></a></span>
         {% endif %}
     </div>
-    <div>
-        <table class="my-table">
-            <thead>
-            <th>Customer name</th>
-            <th>Address</th>
-            <th>Phone</th>
+    <div class="table-responsive">
+
+        <table class="table table-light table-striped table-hover">
+            <thead class="table-dark">
+            <th scope="col">#</th>
+            <th scope="col">Customer name</th>
+            <th scope="col">Address</th>
+            <th scope="col">Phone</th>
             </thead>
+            <tbody>
             {% if customers[0]|length > 0 %} {% for customer in customers %}
             <tr>
+                <th scope="row">{{ loop.index }}</th>
                 <td>{{ customer[0] }}</a></td>
                 <td>{{ customer[1] }}</td>
                 <td>{{ customer[2] }}</td>
             </tr>
             {% endfor %} {% endif %}
+            </tbody>
         </table>
-        </br>
-        <form action="/add_customer" mehtod="get">
-            <button name="redirect_add_customer" type="submit">Add customer</button>
-        </form>
     </div>
+    </br>
+
+    <form action="/add_customer" mehtod="get">
+        <button name="redirect_add_customer" type="submit">Add customer</button>
+    </form>
 </div>
 {% endblock %}

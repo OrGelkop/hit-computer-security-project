@@ -50,7 +50,7 @@ def load_user(uid):
 @app.route('/', methods=['GET'])
 def homepage():
     if current_user.is_authenticated:
-        logged_user_message = "Welcome, {}".format(str(current_user)).replace("'", "")
+        logged_user_message = "{}".format(str(current_user)).replace("'", "")
     else:
         logged_user_message = ""
 
