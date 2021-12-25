@@ -41,20 +41,33 @@ mail_object = Mail(app)
 
 @login_manager.user_loader
 def load_user(uid):
-    email = db_object.get_user_email_by_uid(uid)[0][0]
+    result = db_object.get_user_by_uid(uid)
+    email = result[0][0]
+    display_name = result[0][1]
+    is_admin = result[0][2]
     is_active = True
-    return User(uid, email, is_active)
+    return User(uid, email, display_name, is_active, is_admin)
 
 
 @app.route('/', methods=['GET'])
 def homepage():
     if current_user.is_authenticated:
-        logged_user_message = "Welcome, {}".format(str(current_user)).replace("'", "")
+        logged_user_message = "{}".format(str(current_user)).replace("'", "")
     else:
         logged_user_message = ""
 
-    return render_template("index.html", customers=db_object.get_customers(), is_logged=current_user.is_authenticated,
-                           logged_user_message=logged_user_message)
+    if current_user.is_authenticated:
+        is_logged = 1
+        if current_user.is_admin:
+            is_admin = 1
+        else:
+            is_admin = 0
+    else:
+        is_logged = 0
+        is_admin = 0
+
+    return render_template("index.html", customers=db_object.get_customers(), is_logged=is_logged,
+                           is_admin=is_admin, logged_user_message=logged_user_message)
 
 
 @app.route('/register', methods=['GET', 'POST'])
@@ -64,9 +77,10 @@ def register():
 
     else:  # POST Method
         email = request.form.get('email')
+        display_name = request.form.get('display_name')
         password = request.form.get('password')
 
-        if email == "" or password == "":
+        if email == "" or display_name == "" or password == "":
             return render_template('register.html', status_message=["Make sure to fill all fields."])
 
         validate_password_resp = passwordValidator.validate_password(password)
@@ -74,7 +88,8 @@ def register():
             return render_template('register.html', status_message=validate_password_resp['info'])
 
         password_hashed = sha256_crypt.encrypt(password + HASH_SALT)
-        result = db_object.insert_user(email, password_hashed, password_hashed)
+        previous_passwords_list = '{"%s"}' % password_hashed
+        result = db_object.insert_user(email, display_name, password_hashed, previous_passwords_list)
 
         if result == 0:
             return render_template('register.html', status_message=["User {} registered successfully".format(email)])
@@ -104,12 +119,14 @@ def login():
         stored_password = result[0][1]
         is_locked = result[0][2]
         reset_password_needed = result[0][3]
+        is_admin = result[0][5]
+        display_name = result[0][6]
 
         if is_locked:
             return render_template('login.html', status_message=["Your user is locked, please contact administrator"])
 
         if sha256_crypt.verify(password + HASH_SALT, stored_password):
-            return successful_login(user_id, email, password, reset_password_needed)
+            return successful_login(user_id, email, password, reset_password_needed, is_admin, display_name)
         else:
             return unsuccessful_login(email)
 
@@ -186,10 +203,10 @@ def change_password(status_message=""):
             if not validate_password_resp['status']:
                 return render_template('change_password.html', status_message=validate_password_resp['info'])
 
-        res = db_object.get_user_by_email(email)
-        stored_password = res[0][1]
-        is_locked = res[0][2]
-        previous_passwords = res[0][4].split(' ')
+        result = db_object.get_user_by_email(email)
+        stored_password = result[0][1]
+        is_locked = result[0][2]
+        previous_passwords_list = result[0][4]
 
         if is_locked:
             return render_template('change_password.html',
@@ -200,20 +217,15 @@ def change_password(status_message=""):
                                    status_message=["Cannot change password since current password is incorrect.",
                                                    "Please try again"])
 
-        for prev_pass in previous_passwords:  # Iterating over previous passwords to prevent repeat
+        for prev_pass in previous_passwords_list:  # Iterating over previous passwords to prevent repeat
             if sha256_crypt.verify(new_password + HASH_SALT, prev_pass):
                 return render_template('change_password.html', status_message=["Do not repeat one of your {} previous "
                                                                                "passwords.".format(PASSWORDS_HISTORY)])
 
         password_hashed = sha256_crypt.encrypt(new_password + HASH_SALT)
-        previous_passwords.insert(0, stored_password)
+        previous_passwords_list = update_previous_passwords(previous_passwords_list, password_hashed)
 
-        if len(previous_passwords) > PASSWORDS_HISTORY:  # Rotating previous passwords list based on size in configuration
-            print("removing oldest password")
-            previous_passwords.pop()
-
-        previous_passwords_str = ' '.join(previous_passwords)
-        result = db_object.update_user(email, password_hashed, previous_passwords_str, 0)
+        result = db_object.update_user(email, password_hashed, previous_passwords_list, 0)
         if result == 0:
             return render_template('change_password.html', status_message=["Password changed successfully."])
         else:
@@ -221,12 +233,18 @@ def change_password(status_message=""):
                                                                            "error: {}".format(result)])
 
 
-def successful_login(user_id, email, password, reset_password_needed):
-    login_user(User(user_id, email, password))
+@app.route('/manage_users', methods=['GET', 'POST'])
+@login_required
+def manage_users():
+    return "test"
+
+
+def successful_login(user_id, email, password, reset_password_needed, is_admin, display_name):
+    login_user(User(user_id, email, display_name, password, is_admin))
     db_object.update_login_attempts(0, email)
 
     if not reset_password_needed:
-        return render_template('login.html', status_message=["User {} logged in successfully.".format(email)])
+        return redirect(url_for('homepage'))
     else:
         return redirect(url_for('change_password'))
 
@@ -254,11 +272,19 @@ def unsuccessful_login(email):
                                                    "administrator.".format(LOGIN_RETRY_THRESHOLD - login_retries)])
 
 
-def rotate_previous_passwords():
-    print("hey")
+def update_previous_passwords(previous_passwords_list, new_password):
+    previous_passwords_list.insert(0, new_password)
+    if len(previous_passwords_list) > PASSWORDS_HISTORY:  # Rotate previous passwords list if threshold reached
+        previous_passwords_list.pop()
+
+    temp_previous_passwords_str = '","'.join(previous_passwords_list)
+    previous_passwords_str = '{"%s"}' % temp_previous_passwords_str
+
+    print(previous_passwords_str)
+    return previous_passwords_str
 
 
 if __name__ == "__main__":
     app.secret_key = os.urandom(12)
-    port = int(os.environ.get('PORT', 5000))
+    port = int(os.environ.get('PORT', 8080))
     app.run(host='0.0.0.0', port=port, debug=DEBUG_MODE)
