@@ -3,27 +3,67 @@
 
 {% block head %}
 {{ super() }}
-<style type="text/css">
+<style>
+.error {
+    color: red;
+    padding-bottom: 1em;
+}
+
+.form-signin {
+  width: 100%;
+  max-width: 330px;
+  padding: 15px;
+  margin: auto;
+}
+
+.form-signin .checkbox {
+  font-weight: 400;
+}
+
+.form-signin .form-floating:focus-within {
+  z-index: 2;
+}
+
+.form-signin input[type="email"] {
+  margin-bottom: -1px;
+  border-bottom-right-radius: 0;
+  border-bottom-left-radius: 0;
+}
+
+.form-signin input[type="password"] {
+  margin-bottom: 10px;
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+}
+
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="form">
-    <h1>Login</h1><br/>
-    <form name="login" method="post" action="/login">
-        <input type="text" name="email" id="email" placeholder="Email address"/><br/><br/>
-        <input type="password" name="password" id="password" placeholder="Password"/><br/><br/>
-        <button type="submit" name="submit">Login</button>
-        </br></br></br>
-    </form>
-    <span style="color: red">
+<div class="container">
+    <form class="form-signin" name="login" method="post" action="/login">
+        <!-- logo -->
+        <!-- <img class="mb-4" src="/docs/5.1/assets/brand/bootstrap-logo.svg" alt="" width="72" height="57">-->
+        <h1 class="h3 mb-3 fw-normal">Please sign in</h1>
+
+        <div class="form-floating">
+            <input class="form-control" type="text" name="email" id="email" placeholder="name@example.com">
+            <label for="email">Email address</label>
+        </div>
+        <div class="form-floating">
+            <input class="form-control" type="password" name="password" id="password" placeholder="Password">
+            <label for="password">Password</label>
+        </div>
+        <button class="w-100 btn btn-lg btn-primary" type="submit" name="submit">Sign in</button>
+        <a href="{{url_for('forgot_password')}}">
+            <button class="w-100 btn btn-lg btn-link" type="button">Forgot password</button>
+        </a>
+        <span class="error">
             {% for line in status_message %}
-                {{ line }}</br>
+            <span>{{ line }}</span>
+            </br>
             {% endfor %}
         </span>
-    <br/><br/>
-    <a href="{{url_for('homepage')}}">
-        <button>Back to homepage</button>
-    </a>
+    </form>
 </div>
 {% endblock %}

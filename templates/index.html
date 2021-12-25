@@ -8,9 +8,8 @@
 {% endblock %}
 
 {% block content %}
-<div class="container-fluid">
+<div class="container">
     <div>
-        <span><a href="{{url_for('forgot_password')}}"><button>Forgot password</button></a></span>
         <span><a href="{{url_for('change_password')}}"><button>Change password</button></a></span>
         {% if is_admin %}
         <span><a href="{{url_for('manage_users')}}"><button>Manage users</button></a></span>
