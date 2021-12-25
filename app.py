@@ -1,6 +1,7 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, url_for
 from flask_login import LoginManager, login_user, logout_user, current_user, login_required
 from flask_mail import Mail, Message
+from werkzeug.utils import redirect
 from db import DatabaseManagement
 from passlib.hash import sha256_crypt
 from user import User
@@ -72,7 +73,7 @@ def register():
         if not validate_password_resp['status']:
             return render_template('register.html', status_message=validate_password_resp['info'])
 
-        password_hashed = sha256_crypt.hash(password + HASH_SALT)
+        password_hashed = sha256_crypt.encrypt(password + HASH_SALT)
         result = db_object.insert_user(email, password_hashed, password_hashed)
 
         if result == 0:
@@ -102,12 +103,13 @@ def login():
         user_id = result[0][0]
         stored_password = result[0][1]
         is_locked = result[0][2]
+        reset_password_needed = result[0][3]
 
         if is_locked:
             return render_template('login.html', status_message=["Your user is locked, please contact administrator"])
 
         if sha256_crypt.verify(password + HASH_SALT, stored_password):
-            return successful_login(user_id, email, password)
+            return successful_login(user_id, email, password, reset_password_needed)
         else:
             return unsuccessful_login(email)
 
@@ -157,16 +159,16 @@ def forgot_password():
         msg.body = "Hello,\nWe've received a request to reset your password." \
                    "\nThis is your new generated password: " + random_password
         mail_object.send(msg)
-        password_hashed = sha256_crypt.hash(random_password + HASH_SALT)
+        password_hashed = sha256_crypt.encrypt(random_password + HASH_SALT)
         db_object.update_user(email, password_hashed, "", 1)
         return render_template("forgot_password.html", status_message="Check your inbox for temporary password.")
 
 
 @app.route('/change_password', methods=['GET', 'POST'])
 @login_required
-def change_password():
+def change_password(status_message=""):
     if request.method == 'GET':
-        return render_template('change_password.html')
+        return render_template('change_password.html', status_message=status_message)
 
     else:  # POST Method
         email = request.form.get('email')
@@ -187,7 +189,7 @@ def change_password():
         res = db_object.get_user_by_email(email)
         stored_password = res[0][1]
         is_locked = res[0][2]
-        previous_passwords = res[0][3].split(' ')
+        previous_passwords = res[0][4].split(' ')
 
         if is_locked:
             return render_template('change_password.html',
@@ -200,15 +202,11 @@ def change_password():
 
         for prev_pass in previous_passwords:  # Iterating over previous passwords to prevent repeat
             if sha256_crypt.verify(new_password + HASH_SALT, prev_pass):
-                return render_template('change_password.html',
-                                       status_message=["Do not repeat one of your {} previous passwords."
-                                       .format(PASSWORDS_HISTORY)])
+                return render_template('change_password.html', status_message=["Do not repeat one of your {} previous "
+                                                                               "passwords.".format(PASSWORDS_HISTORY)])
 
-        password_hashed = sha256_crypt.hash(new_password + HASH_SALT)
+        password_hashed = sha256_crypt.encrypt(new_password + HASH_SALT)
         previous_passwords.insert(0, stored_password)
-
-        print(len(previous_passwords))
-        print(previous_passwords)
 
         if len(previous_passwords) > PASSWORDS_HISTORY:  # Rotating previous passwords list based on size in configuration
             print("removing oldest password")
@@ -223,10 +221,14 @@ def change_password():
                                                                            "error: {}".format(result)])
 
 
-def successful_login(user_id, email, password):
+def successful_login(user_id, email, password, reset_password_needed):
     login_user(User(user_id, email, password))
     db_object.update_login_attempts(0, email)
-    return render_template('login.html', status_message=["User {} logged in successfully.".format(email)])
+
+    if not reset_password_needed:
+        return render_template('login.html', status_message=["User {} logged in successfully.".format(email)])
+    else:
+        return redirect(url_for('change_password'))
 
 
 def unsuccessful_login(email):
@@ -248,8 +250,12 @@ def unsuccessful_login(email):
                                                    (LOGIN_RETRY_THRESHOLD - login_retries)])
         else:
             return render_template('login.html',
-                                   status_message=["Failed to increase login retries, please contact administrator."
-                                   .format(LOGIN_RETRY_THRESHOLD - login_retries)])
+                                   status_message=["Failed to increase login retries, please contact "
+                                                   "administrator.".format(LOGIN_RETRY_THRESHOLD - login_retries)])
+
+
+def rotate_previous_passwords():
+    print("hey")
 
 
 if __name__ == "__main__":

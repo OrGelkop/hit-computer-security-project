@@ -41,7 +41,7 @@ class DatabaseManagement:
     def get_user_by_email(self, email):
         try:
             cur = self.db.cursor()
-            query = """SELECT id, password, locked, previous_passwords_list FROM users WHERE email=%s"""
+            query = """SELECT id, password, locked, reset_password_next_login, previous_passwords_list FROM users WHERE email=%s"""
             cur.execute(query, (email,))
             result = cur.fetchall()
             return result
