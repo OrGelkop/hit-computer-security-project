@@ -257,15 +257,16 @@ def unsuccessful_login(email):
                                                    "administrator.".format(LOGIN_RETRY_THRESHOLD - login_retries)])
 
 
-def update_previous_passwords(previous_passwords_list, password_hashed):
-    previous_passwords.insert(0, stored_password)
+def update_previous_passwords(previous_passwords_list, new_password):
+    previous_passwords_list.insert(0, new_password)
+    if len(previous_passwords_list) > PASSWORDS_HISTORY:  # Rotate previous passwords list if threshold reached
+        previous_passwords_list.pop()
 
-    if len(previous_passwords) > PASSWORDS_HISTORY:  # Rotating previous passwords list based on size in configuration
-        print("removing oldest password")
-        previous_passwords.pop()
+    temp_previous_passwords_str = '","'.join(previous_passwords_list)
+    previous_passwords_str = '{"%s"}' % temp_previous_passwords_str
 
-    previous_passwords_str = ' '.join(previous_passwords)
-    return ""
+    print(previous_passwords_str)
+    return previous_passwords_str
 
 
 if __name__ == "__main__":
