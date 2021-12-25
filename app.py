@@ -202,9 +202,8 @@ def change_password(status_message=""):
 
         for prev_pass in previous_passwords:  # Iterating over previous passwords to prevent repeat
             if sha256_crypt.verify(new_password + HASH_SALT, prev_pass):
-                return render_template('change_password.html',
-                                       status_message=["Do not repeat one of your {} previous passwords."
-                                       .format(PASSWORDS_HISTORY)])
+                return render_template('change_password.html', status_message=["Do not repeat one of your {} previous "
+                                                                               "passwords.".format(PASSWORDS_HISTORY)])
 
         password_hashed = sha256_crypt.encrypt(new_password + HASH_SALT)
         previous_passwords.insert(0, stored_password)
@@ -251,8 +250,12 @@ def unsuccessful_login(email):
                                                    (LOGIN_RETRY_THRESHOLD - login_retries)])
         else:
             return render_template('login.html',
-                                   status_message=["Failed to increase login retries, please contact administrator."
-                                   .format(LOGIN_RETRY_THRESHOLD - login_retries)])
+                                   status_message=["Failed to increase login retries, please contact "
+                                                   "administrator.".format(LOGIN_RETRY_THRESHOLD - login_retries)])
+
+
+def rotate_previous_passwords():
+    print("hey")
 
 
 if __name__ == "__main__":
