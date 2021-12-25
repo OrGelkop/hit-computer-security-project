@@ -1,25 +1,31 @@
-<!DOCTYPE html>
-<html>
-    <head>
-        <title>Add customer</title>
-        <link href="css/main.css" rel="stylesheet">
-    </head>
-    <body>
-      <div class="form">
-        <h1>Add customer</h1><br/>
-        <form name="add_customer" method="post" action="/add_customer">
-          <input type="text" name="customer_name" id="customer_name" placeholder="Customer Name" /><br/><br/>
-          <input type="text" name="address" id="address" placeholder="Address" /><br/><br/>
-          <input type="text" name="phone" id="phone" placeholder="Phone number" /><br/><br/>
-          <button type="submit" name="submit">Submit</button></br></br></br>
-        </form>
-        <span style="color: red">
+{% extends "layout.html" %}
+{% block title %}Add customer{% endblock %}
+
+{% block head %}
+{{ super() }}
+<style type="text/css">
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="form">
+    <h1>Add customer</h1><br/>
+    <form name="add_customer" method="post" action="/add_customer">
+        <input type="text" name="customer_name" id="customer_name" placeholder="Customer Name"/><br/><br/>
+        <input type="text" name="address" id="address" placeholder="Address"/><br/><br/>
+        <input type="text" name="phone" id="phone" placeholder="Phone number"/><br/><br/>
+        <button type="submit" name="submit">Submit</button>
+        </br></br></br>
+    </form>
+    <span style="color: red">
             {% for line in status_message %}
                 {{ line }}</br>
             {% endfor %}
         </span>
-          <br/><br/>
-          <a href="{{url_for('homepage', _scheme='https')}}"><button>Back to homepage</button></a>
-      </div>
-    </body>
-</html>
+    <br/><br/>
+    <a href="{{url_for('homepage')}}">
+        <button>Back to homepage</button>
+    </a>
+</div>
+
+{% endblock %}

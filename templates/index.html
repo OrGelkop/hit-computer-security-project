@@ -1,47 +1,46 @@
-<!DOCTYPE html>
-{% autoescape false %}
-<html>
-    <head>
-        <title>Home page</title>
-        <link href="css/main.css" rel="stylesheet">
-    </head>
-    <body>
-      <div class="main">
-          {% if is_logged %}
+{% extends "layout.html" %}
+{% block title %}Home page{% endblock %}
+
+{% block head %}
+{{ super() }}
+<style type="text/css">
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="main">
+    {% if is_logged %}
             <span style="color: red">{{ logged_user_message }}</span>
           {% endif %}
           <br/>
           {% if not is_logged %}
-              <span style="float: left"><a href="{{url_for('forgot_password')}}" ><button>Forgot password</button></a></span>
-              <span><a href="{{url_for('register')}}" ><button>Register</button></a></span>
-              <span style="float: right"><a href="{{url_for('login')}}" ><button>Login</button></a></span>
-          {% else %}
+    <span style="float: left"><a href="{{url_for('forgot_password')}}"><button>Forgot password</button></a></span>
+    <span><a href="{{url_for('register')}}"><button>Register</button></a></span>
+    <span style="float: right"><a href="{{url_for('login')}}"><button>Login</button></a></span>{% else %}
               <span style="float: left"><a href="{{url_for('change_password')}}" ><button>Change password</button></a></span>
               <span style="float: right"><a href="{{url_for('logout')}}" ><button>Logout</button></a></span>
           {% endif %}
-          </br></br>
-          <hr>
-          <div>
-              <table class="my-table">
-                <thead>
-                    <th>Customer name</th>
-                    <th>Address</th>
-                    <th>Phone</th>
-                </thead>
-                {% if customers[0]|length > 0 %} {% for customer in customers %}
-                <tr>
-                    <td>{{ customer[0] }}</a></td>
-                    <td>{{ customer[1] }}</td>
-                    <td>{{ customer[2] }}</td>
-                </tr>
-                {% endfor %} {% endif %}
-              </table>
-              </br>
-              <form action="/add_customer" mehtod="get">
-                  <button name="redirect_add_customer" type="submit">Add customer</button>
-              </form>
-          </div>
-      </div>
-    </body>
-</html>
-{% endautoescape %}
+    </br></br>
+    <hr>
+    <div>
+        <table class="my-table">
+            <thead>
+            <th>Customer name</th>
+            <th>Address</th>
+            <th>Phone</th>
+            </thead>
+            {% if customers[0]|length > 0 %} {% for customer in customers %}
+            <tr>
+                <td>{{ customer[0] }}</a></td>
+                <td>{{ customer[1] }}</td>
+                <td>{{ customer[2] }}</td>
+            </tr>
+            {% endfor %} {% endif %}
+        </table>
+        </br>
+        <form action="/add_customer" mehtod="get">
+            <button name="redirect_add_customer" type="submit">Add customer</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

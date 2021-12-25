@@ -1,10 +1,13 @@
-<!DOCTYPE html>
-<html>
-    <head>
-        <title>Register</title>
-        <link href="css/main.css" rel="stylesheet">
-    </head>
-    <body>
+{% extends "layout.html" %}
+{% block title %}Register{% endblock %}
+
+{% block head %}
+{{ super() }}
+<style type="text/css">
+</style>
+{% endblock %}
+
+{% block content %}
       <div class="form">
         <h1>Register</h1><br/>
         <form name="register" method="post" action="/register">
@@ -20,5 +23,4 @@
           <br/><br/>
         <a href="{{url_for('homepage')}}"><button>Back to homepage</button></a>
       </div>
-    </body>
-</html>
+{% endblock %}
