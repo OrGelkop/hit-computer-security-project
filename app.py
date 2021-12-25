@@ -41,7 +41,8 @@ mail_object = Mail(app)
 
 @login_manager.user_loader
 def load_user(uid):
-    email = db_object.get_user_email_by_uid(uid)[0][0]
+    result = db_object.get_user_email_by_uid(uid)
+    email = result[0][0]
     is_active = True
     return User(uid, email, is_active)
 
@@ -74,7 +75,8 @@ def register():
             return render_template('register.html', status_message=validate_password_resp['info'])
 
         password_hashed = sha256_crypt.encrypt(password + HASH_SALT)
-        result = db_object.insert_user(email, password_hashed, password_hashed)
+        previous_passwords_list = '{"%s"}' % password_hashed
+        result = db_object.insert_user(email, password_hashed, previous_passwords_list)
 
         if result == 0:
             return render_template('register.html', status_message=["User {} registered successfully".format(email)])
@@ -186,10 +188,10 @@ def change_password(status_message=""):
             if not validate_password_resp['status']:
                 return render_template('change_password.html', status_message=validate_password_resp['info'])
 
-        res = db_object.get_user_by_email(email)
-        stored_password = res[0][1]
-        is_locked = res[0][2]
-        previous_passwords = res[0][4].split(' ')
+        result = db_object.get_user_by_email(email)
+        stored_password = result[0][1]
+        is_locked = result[0][2]
+        previous_passwords_list = result[0][4]
 
         if is_locked:
             return render_template('change_password.html',
@@ -200,25 +202,26 @@ def change_password(status_message=""):
                                    status_message=["Cannot change password since current password is incorrect.",
                                                    "Please try again"])
 
-        for prev_pass in previous_passwords:  # Iterating over previous passwords to prevent repeat
+        for prev_pass in previous_passwords_list:  # Iterating over previous passwords to prevent repeat
             if sha256_crypt.verify(new_password + HASH_SALT, prev_pass):
                 return render_template('change_password.html', status_message=["Do not repeat one of your {} previous "
                                                                                "passwords.".format(PASSWORDS_HISTORY)])
 
         password_hashed = sha256_crypt.encrypt(new_password + HASH_SALT)
-        previous_passwords.insert(0, stored_password)
+        previous_passwords_list = update_previous_passwords(previous_passwords_list, password_hashed)
 
-        if len(previous_passwords) > PASSWORDS_HISTORY:  # Rotating previous passwords list based on size in configuration
-            print("removing oldest password")
-            previous_passwords.pop()
-
-        previous_passwords_str = ' '.join(previous_passwords)
-        result = db_object.update_user(email, password_hashed, previous_passwords_str, 0)
+        result = db_object.update_user(email, password_hashed, previous_passwords_list, 0)
         if result == 0:
             return render_template('change_password.html', status_message=["Password changed successfully."])
         else:
             return render_template('change_password.html', status_message=["Failed to change password.",
                                                                            "error: {}".format(result)])
+
+
+@app.route('/manage_users', methods=['GET', 'POST'])
+@login_required
+def manage_users():
+    return "test"
 
 
 def successful_login(user_id, email, password, reset_password_needed):
@@ -254,8 +257,16 @@ def unsuccessful_login(email):
                                                    "administrator.".format(LOGIN_RETRY_THRESHOLD - login_retries)])
 
 
-def rotate_previous_passwords():
-    print("hey")
+def update_previous_passwords(previous_passwords_list, new_password):
+    previous_passwords_list.insert(0, new_password)
+    if len(previous_passwords_list) > PASSWORDS_HISTORY:  # Rotate previous passwords list if threshold reached
+        previous_passwords_list.pop()
+
+    temp_previous_passwords_str = '","'.join(previous_passwords_list)
+    previous_passwords_str = '{"%s"}' % temp_previous_passwords_str
+
+    print(previous_passwords_str)
+    return previous_passwords_str
 
 
 if __name__ == "__main__":

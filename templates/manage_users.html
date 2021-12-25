@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Manage users</title>
+        <link href="css/main.css" rel="stylesheet">
+    </head>
+    <body>
+      <div class="main">
+          <div>
+              <table class="my-table">
+                <thead>
+                    <th>Email</th>
+                    <th>Locked</th>
+                    <th>Action</th>
+                </thead>
+                {% if customers[0]|length > 0 %} {% for customer in customers %}
+                <tr>
+                    <td>{{ customer[0] }}</a></td>
+                    <td>{{ customer[1] }}</td>
+                    <td>{{ customer[2] }}</td>
+                </tr>
+                {% endfor %} {% endif %}
+              </table>
+              </br>
+              <form action="/add_customer" mehtod="get">
+                  <button name="redirect_add_customer" type="submit">Add customer</button>
+              </form>
+          </div>
+      </div>
+    </body>
+</html>

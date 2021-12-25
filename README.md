@@ -1,5 +1,6 @@
 # Computer security final project
-The project is running on Heroku platform, and accessible through - https://hit-computer-security-project.herokuapp.com
+The project is running on Heroku platform, and accessible through:  
+https://hit-computer-security-project.herokuapp.com
 
 ## Run project locally
 In order to run the project locally, the recommended way to do so is:  
