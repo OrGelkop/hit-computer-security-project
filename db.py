@@ -8,12 +8,12 @@ class DatabaseManagement:
     def __init__(self):
         self.db = psycopg2.connect(DATABASE_URL, sslmode='require')
 
-    def insert_user(self, email, password, previous_passwords_list):
+    def insert_user(self, email, display_name, password, previous_passwords_list):
         result = 0
         try:
             cur = self.db.cursor()
-            cur.execute("""INSERT INTO users (email, password, previous_passwords_list) VALUES (%s, %s, %s)""",
-                        (email, password, previous_passwords_list))
+            cur.execute("""INSERT INTO users (email, display_name, password, previous_passwords_list) VALUES (%s, %s, %s, %s)""",
+                        (email, display_name, password, previous_passwords_list))
             self.db.commit()
         except psycopg2.DatabaseError as error:
             result = error
@@ -41,7 +41,7 @@ class DatabaseManagement:
     def get_user_by_email(self, email):
         try:
             cur = self.db.cursor()
-            query = """SELECT id, password, locked, reset_password_next_login, previous_passwords_list, is_admin FROM users WHERE email=%s"""
+            query = """SELECT id, password, locked, reset_password_next_login, previous_passwords_list, is_admin, display_name FROM users WHERE email=%s"""
             cur.execute(query, (email,))
             result = cur.fetchall()
             return result
@@ -53,10 +53,10 @@ class DatabaseManagement:
 
         return result
 
-    def get_user_email_by_uid(self, uid):
+    def get_user_by_uid(self, uid):
         try:
             cur = self.db.cursor()
-            query = """SELECT email FROM users WHERE id=%s"""
+            query = """SELECT email, display_name, is_admin FROM users WHERE id=%s"""
             cur.execute(query, (uid,))
             result = cur.fetchall()
             return result

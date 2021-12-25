@@ -41,10 +41,12 @@ mail_object = Mail(app)
 
 @login_manager.user_loader
 def load_user(uid):
-    result = db_object.get_user_email_by_uid(uid)
+    result = db_object.get_user_by_uid(uid)
     email = result[0][0]
+    display_name = result[0][1]
+    is_admin = result[0][2]
     is_active = True
-    return User(uid, email, is_active)
+    return User(uid, email, display_name, is_active, is_admin)
 
 
 @app.route('/', methods=['GET'])
@@ -54,8 +56,18 @@ def homepage():
     else:
         logged_user_message = ""
 
-    return render_template("index.html", customers=db_object.get_customers(), is_logged=current_user.is_authenticated,
-                           logged_user_message=logged_user_message)
+    if current_user.is_authenticated:
+        is_logged = 1
+        if current_user.is_admin:
+            is_admin = 1
+        else:
+            is_admin = 0
+    else:
+        is_logged = 0
+        is_admin = 0
+
+    return render_template("index.html", customers=db_object.get_customers(), is_logged=is_logged,
+                           is_admin=is_admin, logged_user_message=logged_user_message)
 
 
 @app.route('/register', methods=['GET', 'POST'])
@@ -65,9 +77,10 @@ def register():
 
     else:  # POST Method
         email = request.form.get('email')
+        display_name = request.form.get('display_name')
         password = request.form.get('password')
 
-        if email == "" or password == "":
+        if email == "" or display_name == "" or password == "":
             return render_template('register.html', status_message=["Make sure to fill all fields."])
 
         validate_password_resp = passwordValidator.validate_password(password)
@@ -76,7 +89,7 @@ def register():
 
         password_hashed = sha256_crypt.encrypt(password + HASH_SALT)
         previous_passwords_list = '{"%s"}' % password_hashed
-        result = db_object.insert_user(email, password_hashed, previous_passwords_list)
+        result = db_object.insert_user(email, display_name, password_hashed, previous_passwords_list)
 
         if result == 0:
             return render_template('register.html', status_message=["User {} registered successfully".format(email)])
@@ -106,12 +119,14 @@ def login():
         stored_password = result[0][1]
         is_locked = result[0][2]
         reset_password_needed = result[0][3]
+        is_admin = result[0][5]
+        display_name = result[0][6]
 
         if is_locked:
             return render_template('login.html', status_message=["Your user is locked, please contact administrator"])
 
         if sha256_crypt.verify(password + HASH_SALT, stored_password):
-            return successful_login(user_id, email, password, reset_password_needed)
+            return successful_login(user_id, email, password, reset_password_needed, is_admin, display_name)
         else:
             return unsuccessful_login(email)
 
@@ -224,12 +239,12 @@ def manage_users():
     return "test"
 
 
-def successful_login(user_id, email, password, reset_password_needed):
-    login_user(User(user_id, email, password))
+def successful_login(user_id, email, password, reset_password_needed, is_admin, display_name):
+    login_user(User(user_id, email, display_name, password, is_admin))
     db_object.update_login_attempts(0, email)
 
     if not reset_password_needed:
-        return render_template('login.html', status_message=["User {} logged in successfully.".format(email)])
+        return redirect(url_for('homepage'))
     else:
         return redirect(url_for('change_password'))
 
