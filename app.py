@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, url_for
+from flask import Flask, render_template, request, url_for, Response, session
 from flask_login import LoginManager, login_user, logout_user, current_user, login_required
 from flask_mail import Mail, Message
 from werkzeug.utils import redirect
@@ -46,32 +46,22 @@ def load_user(uid):
     display_name = result[0][1]
     is_admin = result[0][2]
     is_active = True
+    session['display_name'] = display_name
+    session['is_active'] = is_active
+    session['is_admin'] = is_admin
     return User(uid, email, display_name, is_active, is_admin)
 
 
 @app.route('/', methods=['GET'])
 def homepage():
-    if current_user.is_authenticated:
-        logged_user_message = "{}".format(str(current_user)).replace("'", "")
-    else:
-        logged_user_message = ""
-
-    if current_user.is_authenticated:
-        is_logged = 1
-        if current_user.is_admin:
-            is_admin = 1
-        else:
-            is_admin = 0
-    else:
-        is_logged = 0
-        is_admin = 0
-
-    return render_template("index.html", customers=db_object.get_customers(), is_logged=is_logged,
-                           is_admin=is_admin, logged_user_message=logged_user_message)
+    return render_template("index.html", customers=db_object.get_customers())
 
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
+    if current_user.is_authenticated:  # Prevent registration for logged in users
+        return Response(status=403)
+
     if request.method == 'GET':
         return render_template("register.html", status_message=[])
 
@@ -100,6 +90,9 @@ def register():
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
+    if current_user.is_authenticated:  # Prevent logging in for logged in users, need to logout first
+        return Response(status=403)
+
     if request.method == 'GET':
         return render_template('login.html')
 
@@ -134,6 +127,7 @@ def login():
 @app.route('/logout')
 def logout():
     logout_user()
+    session.clear()
     return render_template('logout.html')
 
 
@@ -161,6 +155,9 @@ def add_customer():
 
 @app.route('/forgot_password', methods=['GET', 'POST'])
 def forgot_password():
+    if current_user.is_authenticated:  # Prevent forgot password for logged in users, need to logout first
+        return Response(status=403)
+
     if request.method == 'GET':
         return render_template("forgot_password.html", status_message="")
 
@@ -236,7 +233,10 @@ def change_password(status_message=""):
 @app.route('/manage_users', methods=['GET', 'POST'])
 @login_required
 def manage_users():
-    return "test"
+    if not session['is_admin']:
+        return Response(status=403)
+
+    return render_template('manage_users.html')
 
 
 def successful_login(user_id, email, password, reset_password_needed, is_admin, display_name):

@@ -9,12 +9,6 @@
 
 {% block content %}
 <div class="container">
-    <div>
-        <span><a href="{{url_for('change_password')}}"><button>Change password</button></a></span>
-        {% if is_admin %}
-        <span><a href="{{url_for('manage_users')}}"><button>Manage users</button></a></span>
-        {% endif %}
-    </div>
     <div class="table-responsive">
         <table class="table table-light table-striped table-hover">
             <thead class="table-dark">
@@ -36,8 +30,6 @@
         </table>
     </div>
 
-    <form action="/add_customer" mehtod="get">
-        <button type="button" class="btn btn-primary" name="redirect_add_customer" type="submit">Add customer</button>
-    </form>
+    <a href="/add_customer"><button class="btn btn-primary" name="redirect_add_customer" type="submit">Add customer</button></a>
 </div>
 {% endblock %}
