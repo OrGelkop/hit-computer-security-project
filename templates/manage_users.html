@@ -5,27 +5,13 @@
         <link href="css/main.css" rel="stylesheet">
     </head>
     <body>
-      <div class="main">
-          <div>
-              <table class="my-table">
-                <thead>
-                    <th>Email</th>
-                    <th>Locked</th>
-                    <th>Action</th>
-                </thead>
-                {% if customers[0]|length > 0 %} {% for customer in customers %}
-                <tr>
-                    <td>{{ customer[0] }}</a></td>
-                    <td>{{ customer[1] }}</td>
-                    <td>{{ customer[2] }}</td>
-                </tr>
-                {% endfor %} {% endif %}
-              </table>
-              </br>
-              <form action="/add_customer" mehtod="get">
-                  <button name="redirect_add_customer" type="submit">Add customer</button>
-              </form>
-          </div>
+      <div class="form">
+        <h1>Manage users (for admin only)</h1><br/>
+        <span style="color: red">
+            in progress
+        </span>
+          <br/><br/>
+          <a href="{{url_for('homepage')}}"><button>Back to homepage</button></a>
       </div>
     </body>
 </html>
