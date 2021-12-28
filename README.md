@@ -2,6 +2,10 @@
 The project is running on Heroku platform, and accessible through:  
 https://hit-computer-security-project.herokuapp.com
 
+There are 2 main branches:
+1. main - The main and secured branch which gives solutions to the security vulnerabilities.
+2. insecure - The branch which we demonstrate the XSS and SQL Injection vulnerabilities.
+
 ## Run project locally
 In order to run the project locally, the recommended way to do so is:  
 1. Create a Python virtual environment with Python version 3.7.12.
@@ -36,10 +40,25 @@ docker run -it --name psql jbergknoff/postgresql-client $DATABASE_URL
 ```
 
 ## XSS
-TODO
+Cross-site scripting (XSS) is a security vulnerability which gives the ability to inject client-side scripts into web pages.  
+If the application is deployed from **insecure** branch, a user can insert JavaScript code inside the **add customer** form.  
+By doing that, once the websites loads and reads the data from database, it will execute undesired code.  
+We overcome this issue by using the autoescaping feature which is built in Flask framework of Python.
 
 ## SQL Injection
-TODO
+SQL Injection is a code injection technique which executes malicious SQL statements against a relational database.
+We overcome this issue by not using string concatenation, as stated in the psycopg2 Python library:  
+https://www.psycopg.org/docs/usage.html#the-problem-with-the-query-parameters
+
+### Examples  
+#### Login page
+If you use the string **' OR ''='** as the email address in login form, you will see the information of all existing users in the system.
+
+#### Register page
+If you use the string **display_name'); delete from customers where (''='** as the display name in registration form, you will prune the entire contents of customers table.
+
+#### Insert customer page
+If you use the string **phone'); delete from customers where (''='** as the phone number in add customer form, you will prune the entire contents of customers table.
 
 ## Stride
 TODO
