@@ -52,13 +52,25 @@ https://www.psycopg.org/docs/usage.html#the-problem-with-the-query-parameters
 
 ### Examples  
 #### Login page
-If you use the string **' OR ''='** as the email address in login form, you will see the information of all existing users in the system.
+If you use the string 
+```shell
+' OR ''='
+```
+as the email address in login form, you will see the information of all existing users in the system.
 
 #### Register page
-If you use the string **display_name'); delete from customers where (''='** as the display name in registration form, you will prune the entire contents of customers table.
+If you use the string 
+```shell
+display_name'); delete from customers where (''='
+```
+as the display name in registration form, you will prune the entire contents of customers table.
 
 #### Insert customer page
-If you use the string **phone'); delete from customers where (''='** as the phone number in add customer form, you will prune the entire contents of customers table.
+If you use the string 
+```shell
+phone'); delete from customers where (''='
+```
+as the address in add customer form, you will prune the entire contents of customers table.
 
 ## Stride
 TODO
