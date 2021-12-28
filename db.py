@@ -12,8 +12,8 @@ class DatabaseManagement:
         result = 0
         try:
             cur = self.db.cursor()
-            cur.execute("""INSERT INTO users (email, display_name, password, previous_passwords_list) VALUES (%s, %s, %s, %s)""",
-                        (email, display_name, password, previous_passwords_list))
+            cur.execute("""INSERT INTO users (email, display_name, password, previous_passwords_list) 
+                VALUES (%s, %s, %s, %s)""", (email, display_name, password, previous_passwords_list))
             self.db.commit()
         except psycopg2.DatabaseError as error:
             result = error
@@ -27,8 +27,8 @@ class DatabaseManagement:
         result = 0
         try:
             cur = self.db.cursor()
-            cur.execute("""UPDATE users SET password=%s, previous_passwords_list=%s, reset_password_next_login=%s WHERE email=%s""",
-                        (password, previous_passwords_list, reset_password_next_login, email))
+            cur.execute("""UPDATE users SET password=%s, previous_passwords_list=%s, reset_password_next_login=%s 
+                WHERE email=%s""", (password, previous_passwords_list, reset_password_next_login, email))
             self.db.commit()
         except psycopg2.DatabaseError as error:
             result = error
@@ -41,7 +41,8 @@ class DatabaseManagement:
     def get_user_by_email(self, email):
         try:
             cur = self.db.cursor()
-            query = """SELECT id, password, locked, reset_password_next_login, previous_passwords_list, is_admin, display_name FROM users WHERE email=%s"""
+            query = """SELECT id, password, locked, reset_password_next_login, previous_passwords_list, is_admin, 
+                display_name FROM users WHERE email=%s"""
             cur.execute(query, (email,))
             result = cur.fetchall()
             return result
