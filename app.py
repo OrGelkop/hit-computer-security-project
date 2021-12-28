@@ -30,6 +30,8 @@ MAIL_USERNAME = os.environ.get('MAIL_USERNAME')
 MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD')
 PASSWORDS_HISTORY = int(config.get('main', 'passwords_history'))
 LOGIN_RETRY_THRESHOLD = int(config.get('main', 'login_retries'))
+REDIRECT_SCHEME = 'http' if DEBUG_MODE else 'https'
+
 app.config['MAIL_USERNAME'] = MAIL_USERNAME
 app.config['MAIL_PASSWORD'] = MAIL_PASSWORD
 app.config['MAIL_SERVER'] = 'smtp.gmail.com'
@@ -103,25 +105,27 @@ def login():
         if email == "" or password == "":
             return render_template('login.html', status_message=["Make sure to fill all fields."])
 
-        result = db_object.get_user_by_email(email)
-        if not result:
+        try:
+            result = db_object.get_user_by_email(email)
+            user_id = result[0][0]
+            stored_password = result[0][1]
+            is_locked = result[0][2]
+            reset_password_needed = result[0][3]
+            is_admin = result[0][5]
+            display_name = result[0][6]
+
+            if is_locked:
+                return render_template('login.html', status_message=["Your user is locked, please contact administrator"])
+
+            if sha256_crypt.verify(password + HASH_SALT, stored_password):
+                return successful_login(user_id, email, password, reset_password_needed, is_admin, display_name)
+            else:
+                return unsuccessful_login(email)
+
+        except Exception as e:
             return render_template('login.html', status_message=["Login failed for user {}.".format(email),
-                                                                 "error: {}".format(result)])
-
-        user_id = result[0][0]
-        stored_password = result[0][1]
-        is_locked = result[0][2]
-        reset_password_needed = result[0][3]
-        is_admin = result[0][5]
-        display_name = result[0][6]
-
-        if is_locked:
-            return render_template('login.html', status_message=["Your user is locked, please contact administrator"])
-
-        if sha256_crypt.verify(password + HASH_SALT, stored_password):
-            return successful_login(user_id, email, password, reset_password_needed, is_admin, display_name)
-        else:
-            return unsuccessful_login(email)
+                                                                 "error: {}".format(result),
+                                                                 "{}".format(e)])
 
 
 @app.route('/logout')
@@ -257,9 +261,9 @@ def successful_login(user_id, email, password, reset_password_needed, is_admin, 
     db_object.update_login_attempts(0, email)
 
     if not reset_password_needed:
-        return redirect(url_for('homepage'))
+        return redirect(url_for('homepage', _external=True, _scheme=REDIRECT_SCHEME))
     else:
-        return redirect(url_for('change_password'))
+        return redirect(url_for('change_password', _external=True, _scheme=REDIRECT_SCHEME))
 
 
 def unsuccessful_login(email):
