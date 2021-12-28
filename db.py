@@ -12,8 +12,9 @@ class DatabaseManagement:
         result = 0
         try:
             cur = self.db.cursor()
-            cur.execute("""INSERT INTO users (email, display_name, password, previous_passwords_list) 
-                VALUES (%s, %s, %s, %s)""", (email, display_name, password, previous_passwords_list))
+            query = """INSERT INTO users (email, password, previous_passwords_list, display_name) 
+                VALUES ('{}', '{}', '{}', '{}')""".format(email, password, previous_passwords_list, display_name)
+            cur.execute(query)
             self.db.commit()
         except psycopg2.DatabaseError as error:
             result = error
@@ -63,8 +64,8 @@ class DatabaseManagement:
         try:
             cur = self.db.cursor()
             query = """SELECT id, password, locked, reset_password_next_login, previous_passwords_list, is_admin, 
-                display_name FROM users WHERE email=%s"""
-            cur.execute(query, (email,))
+                display_name, email FROM users WHERE email='{}'""".format(email)
+            cur.execute(query)
             result = cur.fetchall()
             return result
         except psycopg2.DatabaseError as error:
@@ -130,7 +131,9 @@ class DatabaseManagement:
         result = 0
         try:
             cur = self.db.cursor()
-            cur.execute("""INSERT INTO customers (name, phone, address) VALUES (%s, %s, %s)""", (name, phone, address))
+            query = """INSERT INTO customers (name, phone, address) VALUES ('{}', '{}', '{}')""".format(name, phone,
+                                                                                                        address)
+            cur.execute(query)
             self.db.commit()
         except psycopg2.DatabaseError as error:
             result = error
