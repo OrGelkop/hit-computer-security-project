@@ -68,7 +68,7 @@ as the display name in registration form, you will prune the entire contents of 
 #### Insert customer page
 If you use the string 
 ```shell
-phone'); delete from customers where (''='
+address'); delete from customers where (''='
 ```
 as the address in add customer form, you will prune the entire contents of customers table.
 
