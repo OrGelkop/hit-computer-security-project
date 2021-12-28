@@ -5,8 +5,4 @@ config-parser==0.0.1
 passlib==1.7.4
 blinker==1.4
 flask-mail==0.9.1
-
-
 requests>=2.6.0
-beautifulsoup4>=4.7.1
-
