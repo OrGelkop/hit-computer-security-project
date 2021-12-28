@@ -236,7 +236,20 @@ def manage_users():
     if not session['is_admin']:
         return Response(status=403)
 
-    return render_template('manage_users.html')
+    if request.method == 'GET':
+        return render_template('manage_users.html', users=db_object.get_users())
+
+    else:  # POST Method
+        email = request.form.get('email')
+        result = db_object.unlock_user(email)
+
+        if result == 0:
+            return render_template('manage_users.html', users=db_object.get_users(),
+                                   status_message=["User {} successfully unlocked".format(email)])
+        else:
+            return render_template('manage_users.html', users=db_object.get_users(),
+                                   status_message=["Failed to unlock user {}".format(email),
+                                                   "error: {}".format(result)])
 
 
 def successful_login(user_id, email, password, reset_password_needed, is_admin, display_name):

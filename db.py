@@ -82,6 +82,20 @@ class DatabaseManagement:
 
         return result
 
+    def get_users(self):
+        try:
+            cur = self.db.cursor()
+            cur.execute("SELECT email, display_name, locked FROM users ORDER BY email")
+            result = cur.fetchall()
+            return result
+        except psycopg2.DatabaseError as error:
+            result = error
+        finally:
+            if cur is not None:
+                cur.close()
+
+        return result
+
     def insert_customer(self, name, address, phone):
         result = 0
         try:

@@ -12,10 +12,10 @@
     <div class="table-responsive">
         <table class="table table-light table-striped table-hover">
             <thead class="table-dark">
-            <th scope="col">#</th>
-            <th scope="col">Customer name</th>
-            <th scope="col">Address</th>
-            <th scope="col">Phone</th>
+                <th scope="col">#</th>
+                <th scope="col">Customer name</th>
+                <th scope="col">Address</th>
+                <th scope="col">Phone</th>
             </thead>
             <tbody>
             {% if customers[0]|length > 0 %} {% for customer in customers %}
@@ -29,7 +29,8 @@
             </tbody>
         </table>
     </div>
-
+    {% if session['is_active'] %}
     <a href="/add_customer"><button class="btn btn-primary" name="redirect_add_customer" type="submit">Add customer</button></a>
+    {% endif %}
 </div>
 {% endblock %}
