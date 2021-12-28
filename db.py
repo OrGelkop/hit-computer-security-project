@@ -17,6 +17,8 @@ class DatabaseManagement:
             self.db.commit()
         except psycopg2.DatabaseError as error:
             result = error
+            cur.execute("rollback")
+            self.db.commit()
         finally:
             if cur is not None:
                 cur.close()
@@ -32,6 +34,8 @@ class DatabaseManagement:
             self.db.commit()
         except psycopg2.DatabaseError as error:
             result = error
+            cur.execute("rollback")
+            self.db.commit()
         finally:
             if cur is not None:
                 cur.close()
@@ -101,14 +105,17 @@ class DatabaseManagement:
         result = 0
         try:
             cur = self.db.cursor()
-            cur.execute("""INSERT INTO customers (name, address, phone) VALUES (%s, %s, %s)""", (name, address, phone))
+            cur.execute("""INSERT INTO customers (name, phone, address) VALUES (%s, %s, %s)""", (name, phone, address))
             self.db.commit()
         except psycopg2.DatabaseError as error:
             result = error
+            cur.execute("rollback")
+            self.db.commit()
         finally:
             if cur is not None:
                 cur.close()
 
+        print(result)
         return result
 
     def get_login_attempts(self, email):
@@ -134,6 +141,8 @@ class DatabaseManagement:
             self.db.commit()
         except psycopg2.DatabaseError as error:
             result = error
+            cur.execute("rollback")
+            self.db.commit()
         finally:
             if cur is not None:
                 cur.close()
@@ -149,6 +158,8 @@ class DatabaseManagement:
             self.db.commit()
         except psycopg2.DatabaseError as error:
             result = error
+            cur.execute("rollback")
+            self.db.commit()
         finally:
             if cur is not None:
                 cur.close()
@@ -164,6 +175,8 @@ class DatabaseManagement:
             self.db.commit()
         except psycopg2.DatabaseError as error:
             result = error
+            cur.execute("rollback")
+            self.db.commit()
         finally:
             if cur is not None:
                 cur.close()
