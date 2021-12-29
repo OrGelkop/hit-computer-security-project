@@ -8,6 +8,7 @@
 {% endblock %}
 
 {% block content %}
+{% autoescape true %}
 <div class="container">
     <div class="table-responsive">
         <table class="table table-light table-striped table-hover">
@@ -33,4 +34,5 @@
     <a href="/add_customer"><button class="btn btn-primary" name="redirect_add_customer" type="submit">Add customer</button></a>
     {% endif %}
 </div>
+{% autoescape %}
 {% endblock %}
