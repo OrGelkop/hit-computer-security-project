@@ -16,7 +16,8 @@
                 <th scope="col">Email</th>
                 <th scope="col">Display Name</th>
                 <th scope="col">Locked</th>
-                <th scope="col">Action</th>
+                <th scope="col">Unlock</th>
+                <th scope="col">Delete</th>
             </thead>
             <tbody>
             {% if users[0]|length > 0 %} {% for user in users %}
@@ -28,7 +29,7 @@
                 <td>Yes</td>
                 <td>
                     <form name="unlock_user" method="post" action="/manage_users">
-                        <input name="email" id="email" type="hidden" value="{{ user[0] }}">
+                        <input name="email_unlock" id="email_unlock" type="hidden" value="{{ user[0] }}">
                         <button type="submit" name="submit">Unlock</button>
                     </form>
                 </td>
@@ -36,6 +37,12 @@
                 <td>No</td>
                 <td> </td>
                 {% endif %}
+                <td>
+                    <form name="delete_user" method="post" action="/manage_users">
+                        <input name="email_delete" id="email_delete" type="hidden" value="{{ user[0] }}">
+                        <button type="submit" name="submit">Delete</button>
+                    </form>
+                </td>
             </tr>
             {% endfor %} {% endif %}
             </tbody>

@@ -174,12 +174,16 @@ def forgot_password():
 
         random_password = ''.join(random.choices(string.ascii_letters + string.digits, k=24))
         msg = Message('Reset password request', sender=MAIL_USERNAME, recipients=[email])
-        msg.body = "Hello,\nWe've received a request to reset your password." \
-                   "\nThis is your new generated password: " + random_password
+        msg.html = render_template('forgot_password_email.html', random_password=random_password)
         mail_object.send(msg)
+
         password_hashed = sha256_crypt.encrypt(random_password + HASH_SALT)
-        db_object.update_user(email, password_hashed, "", 1)
-        return render_template("forgot_password.html", status_message="Check your inbox for temporary password.")
+        result = db_object.update_user_forgot_password(email, password_hashed, 1)
+        if result == 0:
+            return render_template("forgot_password.html", status_message="Check your inbox for temporary password.")
+        else:
+            return render_template("forgot_password.html", status_message="Failed generating temporary password, "
+                                                                          "please contact administrator.")
 
 
 @app.route('/change_password', methods=['GET', 'POST'])
@@ -244,15 +248,21 @@ def manage_users():
         return render_template('manage_users.html', users=db_object.get_users())
 
     else:  # POST Method
-        email = request.form.get('email')
-        result = db_object.unlock_user(email)
+        if 'email_unlock' in request.form:  # Means this is unlock request
+            action = 'unlock'
+            email = request.form.get('email_unlock')
+            result = db_object.unlock_user(email)
+        else:  # Means this is delete request
+            action = 'delete'
+            email = request.form.get('email_delete')
+            result = db_object.delete_user(email)
 
         if result == 0:
             return render_template('manage_users.html', users=db_object.get_users(),
-                                   status_message=["User {} successfully unlocked".format(email)])
+                                   status_message=["User {} {} successful".format(email, action)])
         else:
             return render_template('manage_users.html', users=db_object.get_users(),
-                                   status_message=["Failed to unlock user {}".format(email),
+                                   status_message=["Failed to {} user {}".format(email, action),
                                                    "error: {}".format(result)])
 
 

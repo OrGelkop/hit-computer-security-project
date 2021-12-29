@@ -42,6 +42,23 @@ class DatabaseManagement:
 
         return result
 
+    def update_user_forgot_password(self, email, password, reset_password_next_login):
+        result = 0
+        try:
+            cur = self.db.cursor()
+            cur.execute("""UPDATE users SET password=%s, reset_password_next_login=%s WHERE email=%s""",
+                        (password, reset_password_next_login, email))
+            self.db.commit()
+        except psycopg2.DatabaseError as error:
+            result = error
+            cur.execute("rollback")
+            self.db.commit()
+        finally:
+            if cur is not None:
+                cur.close()
+
+        return result
+
     def get_user_by_email(self, email):
         try:
             cur = self.db.cursor()
@@ -171,6 +188,23 @@ class DatabaseManagement:
         try:
             cur = self.db.cursor()
             query = """UPDATE users SET login_retries=0, locked=0 WHERE email=%s"""
+            cur.execute(query, (email,))
+            self.db.commit()
+        except psycopg2.DatabaseError as error:
+            result = error
+            cur.execute("rollback")
+            self.db.commit()
+        finally:
+            if cur is not None:
+                cur.close()
+
+        return result
+
+    def delete_user(self, email):
+        result = 0
+        try:
+            cur = self.db.cursor()
+            query = """DELETE FROM users WHERE email=%s"""
             cur.execute(query, (email,))
             self.db.commit()
         except psycopg2.DatabaseError as error:
