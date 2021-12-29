@@ -44,9 +44,9 @@ Cross-site scripting (XSS) is a security vulnerability which gives the ability t
 By doing that, attackers can make the website run undesired code.  
 For example, if you put the string 
 ```
-<script>alert('XSS')</script>
+<script>setInterval("alert(\"cryptomining :)\")",2000)</script>
 ```
-in one of the input fields of **add customer** form, once you load the home page, you will receive Javascript alert.  
+as customer name or address, inside **add customer** form, once you load the home page, you will receive Javascript alert.  
 We overcome this issue by using the autoescape feature which is built in Flask framework of Python.
 
 ## SQL Injection
