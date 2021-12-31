@@ -12,12 +12,12 @@
     <div class="table-responsive">
         <table class="table table-light table-striped table-hover">
             <thead class="table-dark">
-                <th scope="col">#</th>
-                <th scope="col">Email</th>
-                <th scope="col">Display Name</th>
-                <th scope="col">Locked</th>
-                <th scope="col">Unlock</th>
-                <th scope="col">Delete</th>
+            <th scope="col">#</th>
+            <th scope="col">Email</th>
+            <th scope="col">Display Name</th>
+            <th scope="col">Locked</th>
+            <th scope="col">Unlock</th>
+            <th scope="col">Delete</th>
             </thead>
             <tbody>
             {% if users[0]|length > 0 %} {% for user in users %}
@@ -30,12 +30,12 @@
                 <td>
                     <form name="unlock_user" method="post" action="/manage_users">
                         <input name="email_unlock" id="email_unlock" type="hidden" value="{{ user[0] }}">
-                        <button type="submit" name="submit">Unlock</button>
+                        <button type="submit" name="submit" class="btn btn-warning">Unlock</button>
                     </form>
                 </td>
                 {% else %}
                 <td>No</td>
-                <td> </td>
+                <td></td>
                 {% endif %}
                 <td>
                     <form name="delete_user" method="post" action="/manage_users">
@@ -48,7 +48,7 @@
             </tbody>
         </table>
     </div>
-   <div class="error-block">
+    <div class="error-block">
         {% for line in status_message %}
         <div>{{ line }}</div>
         {% endfor %}
