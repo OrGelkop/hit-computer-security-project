@@ -11,27 +11,42 @@ In order to run the project locally, the recommended way to do so is:
 1. Create a Python virtual environment with Python version 3.7.12.
 2. Install all Python requirements in the virtual environment, by running the command:  
 ```shell
+# Linux
 sudo pip install -r requirements.txt
+
+# Windows
+pip install -r requirements.txt
 ```
-3. Create **setenv.sh** file in the project root folder, with these contents:
+3. Create **setenv.sh** file in the project root folder, with environment variables, and replace the values:
 ```shell
+# Linux
 export DATABASE_URL=<value>
 export DEBUG_MODE=<value>
 export HASH_SALT=<value>
 export PORT=<value>
 export MAIL_USERNAME=<value>
 export MAIL_PASSWORD=<value>
+
+# Windows
+set DATABASE_URL=<value>
+set DEBUG_MODE=<value>
+set HASH_SALT=<value>
+set PORT=<value>
+set MAIL_USERNAME=<value>
+set MAIL_PASSWORD=<value>
 ```
-3. Make sure to replace all values for the environment variables.  
 4. Load the environment variables, by running the command:  
 ```shell
+# Linux
 source setenv.sh
+
+# Windows
+setenv.sh
 ```
 5. Now you are ready to run the project, simply type:  
 ```shell
 python app.py
 ```
-And access **http://localhost/$PORT** to view the application.
 
 ## Connect to database
 In order to have PSQL client against the database, use Docker container:    
@@ -44,7 +59,7 @@ Cross-site scripting (XSS) is a security vulnerability which gives the ability t
 By doing that, attackers can make the website run undesired code.  
 For example, if you put the string 
 ```
-<script>setInterval("alert(\"cryptomining :)\")",2000)</script>
+<script>setInterval("alert(\"cryptomining :)\")",5000)</script>
 ```
 as customer name or address, inside **add customer** form, once you load the home page, you will receive Javascript alert.  
 We overcome this issue by using the autoescape feature which is built in Flask framework of Python.
@@ -60,6 +75,3 @@ Page | Input field | Value | Outcome
 Login | email | ```' OR ''='``` | Receive information of all existing users in the system
 Register | display name | ```display_name'); delete from customers where (''='``` | Prune customers table content 
 Add customer | address | ```address'); delete from users where (''='``` | Prune users table content 
-
-## Stride
-TODO
