@@ -1,17 +1,21 @@
-<!DOCTYPE html>
-<html>
-    <head>
-        <title>Logout</title>
-        <link href="css/main.css" rel="stylesheet">
-    </head>
-    <body>
-      <div class="form">
-        <h1>Logout</h1><br/>
-        <span style="color: red">
+{% extends "layout.html" %}
+{% block title %}Register{% endblock %}
+
+{% block head %}
+{{ super() }}
+<style type="text/css">
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="form">
+    <h1>Logout</h1><br/>
+    <span style="color: red">
             You have successfully logged out from the system.
         </span>
-          <br/><br/>
-          <a href="/"><button>Back to homepage</button></a>
-      </div>
-    </body>
-</html>
+    <br/><br/>
+    <a href="/">
+        <button>Back to homepage</button>
+    </a>
+</div>
+{% endblock %}
