@@ -84,10 +84,10 @@ def register():
         result = db_object.insert_user(email, display_name, password_hashed, previous_passwords_list)
 
         if result == 0:
-            return render_template('register.html', status_message=["User {} registered successfully".format(email)])
+            return render_template('register.html', status_message=["User {} registered successfully.".format(email)])
         else:
             return render_template('register.html', status_message=["Failed to register user {}.".format(email),
-                                                                    "error: {}".format(result)])
+                                                                    "Error: {}".format(result)])
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -107,6 +107,11 @@ def login():
 
         try:
             result = db_object.get_user_by_email(email)
+
+            if not result:
+                return render_template('login.html',
+                                       status_message=["User is not registered in the system."])
+
             user_id = result[0][0]
             stored_password = result[0][1]
             is_locked = result[0][2]
@@ -115,7 +120,8 @@ def login():
             display_name = result[0][6]
 
             if is_locked:
-                return render_template('login.html', status_message=["Your user is locked, please contact administrator"])
+                return render_template('login.html', status_message=["Your user is locked,"
+                                                                     " please contact administrator."])
 
             if sha256_crypt.verify(password + HASH_SALT, stored_password):
                 return successful_login(user_id, email, password, reset_password_needed, is_admin, display_name)
@@ -208,10 +214,19 @@ def change_password(status_message=""):
             if not validate_password_resp['status']:
                 return render_template('change_password.html', status_message=validate_password_resp['info'])
 
-        result = db_object.get_user_by_email(email)
-        stored_password = result[0][1]
-        is_locked = result[0][2]
-        previous_passwords_list = result[0][4]
+        try:
+            result = db_object.get_user_by_email(email)
+
+            if not result:
+                return render_template("change_password.html", status_message=["User is not registered in the system."])
+
+            stored_password = result[0][1]
+            is_locked = result[0][2]
+            previous_passwords_list = result[0][4]
+        except Exception as e:
+            return render_template('login.html', status_message=["Login to change password for user {}.".format(email),
+                                                                 "error: {}".format(result),
+                                                                 "{}".format(e)])
 
         if is_locked:
             return render_template('change_password.html',
@@ -307,7 +322,6 @@ def update_previous_passwords(previous_passwords_list, new_password):
     temp_previous_passwords_str = '","'.join(previous_passwords_list)
     previous_passwords_str = '{"%s"}' % temp_previous_passwords_str
 
-    print(previous_passwords_str)
     return previous_passwords_str
 
 
