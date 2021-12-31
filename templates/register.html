@@ -4,24 +4,40 @@
 {% block head %}
 {{ super() }}
 <style type="text/css">
+    .register-form {
+        max-width: 600px;
+    }
+
+
 </style>
 {% endblock %}
 
 {% block content %}
-      <div class="form">
-        <h1>Register</h1><br/>
+<div class="container">
+    <div class="register-form">
+        <h1>Register</h1>
         <form name="register" method="post" action="/register">
-          <input type="text" name="email" id="email" placeholder="Email address" /><br/><br/>
-          <input type="text" name="display_name" id="display_name" placeholder="Display name" /><br/><br/>
-          <input type="password" name="password" id="password" placeholder="Password" /><br/><br/>
-          <button type="submit" name="submit">Register</button></br></br></br>
+            <div class="mb-3">
+                <label for="display_name" class="form-label">Your name</label>
+                <input type="text" class="form-control" name="display_name" id="display_name"
+                       placeholder="Display name"/>
+            </div>
+            <div class="mb-3">
+                <label for="email" class="form-label">Email address</label>
+                <input type="email" class="form-control" name="email" id="email" placeholder="Email address"/>
+            </div>
+            <div class="mb-3">
+                <label for="password" class="form-label">Password</label>
+                <input type="password" class="form-control" name="password" id="password" placeholder="Password"/>
+            </div>
+
+            <button type="submit" name="submit" class="btn btn-primary">Register</button>
         </form>
-        <span style="color: red">
-            {% for line in status_message %}
-                {{ line }}</br>
-            {% endfor %}
-        </span>
-          <br/><br/>
-        <a href="/"><button>Back to homepage</button></a>
-      </div>
+    </div>
+    <div class="error-block">
+        {% for line in status_message %}
+        <div>{{ line }}</div>
+        {% endfor %}
+    </div>
+</div>
 {% endblock %}

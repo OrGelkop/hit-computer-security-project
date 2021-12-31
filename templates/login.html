@@ -4,11 +4,6 @@
 {% block head %}
 {{ super() }}
 <style>
-.error {
-    color: red;
-    padding-bottom: 1em;
-}
-
 .form-signin {
   width: 100%;
   max-width: 330px;
@@ -36,6 +31,7 @@
   border-top-right-radius: 0;
 }
 
+
 </style>
 {% endblock %}
 
@@ -59,11 +55,10 @@
             <button class="w-100 btn btn-lg btn-link" type="button">Forgot password</button>
         </a>
     </form>
-    <span class="error">
+    <div class="error-block">
         {% for line in status_message %}
-        <span>{{ line }}</span>
-        </br>
+        <div>{{ line }}</div>
         {% endfor %}
-    </span>
+    </div>
 </div>
 {% endblock %}
