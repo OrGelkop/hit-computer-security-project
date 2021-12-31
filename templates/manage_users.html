@@ -23,7 +23,7 @@
             {% if users[0]|length > 0 %} {% for user in users %}
             <tr>
                 <th scope="row">{{ loop.index }}</th>
-                <td>{{ user[0] }}</a></td>
+                <td>{{ user[0] }}</td>
                 <td>{{ user[1] }}</td>
                 {% if user[2] == 1 %}
                 <td>Yes</td>
@@ -40,7 +40,7 @@
                 <td>
                     <form name="delete_user" method="post" action="/manage_users">
                         <input name="email_delete" id="email_delete" type="hidden" value="{{ user[0] }}">
-                        <button type="submit" name="submit">Delete</button>
+                        <button type="submit" name="submit" class="btn btn-danger">Delete</button>
                     </form>
                 </td>
             </tr>

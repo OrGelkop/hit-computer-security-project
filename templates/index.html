@@ -22,7 +22,7 @@
             {% if customers[0]|length > 0 %} {% for customer in customers %}
             <tr>
                 <th scope="row">{{ loop.index }}</th>
-                <td>{{ customer[0] }}</a></td>
+                <td>{{ customer[0] }}</td>
                 <td>{{ customer[1] }}</td>
                 <td>{{ customer[2] }}</td>
             </tr>
@@ -31,7 +31,9 @@
         </table>
     </div>
     {% if session['is_active'] %}
-    <a href="/add_customer"><button class="btn btn-primary" name="redirect_add_customer" type="submit">Add customer</button></a>
+    <a href="/add_customer">
+        <button class="btn btn-primary" name="redirect_add_customer" type="submit">Add customer</button>
+    </a>
     {% endif %}
 </div>
 {% endautoescape %}
