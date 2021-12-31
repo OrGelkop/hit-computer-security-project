@@ -48,10 +48,10 @@
             </tbody>
         </table>
     </div>
-    <span style="color: red">
+   <div class="error-block">
         {% for line in status_message %}
-            {{ line }}</br>
+        <div>{{ line }}</div>
         {% endfor %}
-    </span>
+    </div>
 </div>
 {% endblock %}

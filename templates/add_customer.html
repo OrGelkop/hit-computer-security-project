@@ -17,13 +17,11 @@
         <button type="submit" name="submit">Submit</button>
         </br></br></br>
     </form>
-    <span style="color: red">
-            {% for line in status_message %}
-                {{ line }}</br>
-            {% endfor %}
-        </span>
-    <br/><br/>
-    <a href="/"><button>Back to homepage</button></a>
+    <div class="error-block">
+        {% for line in status_message %}
+        <div>{{ line }}</div>
+        {% endfor %}
+    </div>
 </div>
 
 {% endblock %}
