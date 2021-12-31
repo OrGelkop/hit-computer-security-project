@@ -1,10 +1,11 @@
 # Computer security final project
-The project is running on Heroku platform, and accessible through:  
-https://hit-computer-security-project.herokuapp.com
+The project is up and running on thanks to Heroku platform.
 
 There are 2 main branches:
-1. main - The main and secured branch which gives solutions to the security vulnerabilities.
+1. main - The main and secured branch which gives solutions to the security vulnerabilities.  
+Main branch url - https://hit-computer-security-project.herokuapp.com/
 2. insecure - The branch which we demonstrate the XSS and SQL Injection vulnerabilities.
+Insecure branch url - https://hit-insecure-security-project.herokuapp.com/
 
 ## Run project locally
 In order to run the project locally, the recommended way to do so is:  
@@ -43,7 +44,7 @@ source setenv.sh
 # Windows
 setenv.sh
 ```
-5. Now you are ready to run the project, simply type:  
+5. Now you are ready to run the project, just branch out to the desired branch (main/insecure) and run: 
 ```shell
 python app.py
 ```
