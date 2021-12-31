@@ -8,14 +8,13 @@
 {% endblock %}
 
 {% block content %}
-<div class="form">
-    <h1>Logout</h1><br/>
-    <span style="color: red">
-            You have successfully logged out from the system.
-        </span>
-    <br/><br/>
+<div class="container-fluid">
+    <h1>Logout</h1>
+    <div class="error-block">
+        You have successfully logged out from the system.
+    </div>
     <a href="/">
-        <button>Back to homepage</button>
+        <button class="btn btn-primary">Back to homepage</button>
     </a>
 </div>
 {% endblock %}
