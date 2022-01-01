@@ -131,8 +131,8 @@ class DatabaseManagement:
         result = 0
         try:
             cur = self.db.cursor()
-            query = """INSERT INTO customers (name, phone, address) VALUES ('{}', '{}', '{}')""".format(name, phone,
-                                                                                                        address)
+            query = """INSERT INTO customers (name, phone, address) VALUES ('{}', '{}', '{}')""" \
+                .format(name, phone, address)
             cur.execute(query)
             self.db.commit()
         except psycopg2.DatabaseError as error:
