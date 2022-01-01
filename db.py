@@ -69,6 +69,8 @@ class DatabaseManagement:
             return result
         except psycopg2.DatabaseError as error:
             result = error
+            cur.execute("rollback")
+            self.db.commit()
         finally:
             if cur is not None:
                 cur.close()
@@ -84,6 +86,8 @@ class DatabaseManagement:
             return result
         except psycopg2.DatabaseError as error:
             result = error
+            cur.execute("rollback")
+            self.db.commit()
         finally:
             if cur is not None:
                 cur.close()
@@ -98,6 +102,8 @@ class DatabaseManagement:
             return result
         except psycopg2.DatabaseError as error:
             result = error
+            cur.execute("rollback")
+            self.db.commit()
         finally:
             if cur is not None:
                 cur.close()
@@ -112,6 +118,8 @@ class DatabaseManagement:
             return result
         except psycopg2.DatabaseError as error:
             result = error
+            cur.execute("rollback")
+            self.db.commit()
         finally:
             if cur is not None:
                 cur.close()
@@ -143,6 +151,8 @@ class DatabaseManagement:
             return result
         except psycopg2.DatabaseError as error:
             result = error
+            cur.execute("rollback")
+            self.db.commit()
         finally:
             if cur is not None:
                 cur.close()
