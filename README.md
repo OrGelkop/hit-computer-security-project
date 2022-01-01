@@ -5,7 +5,7 @@ There are 2 main branches:
 1. main - The main and secured branch which gives solutions to the security vulnerabilities.  
 Main branch url - https://hit-computer-security-project.herokuapp.com/  
 2. insecure - The branch which we demonstrate the XSS and SQL Injection vulnerabilities.  
-Insecure branch url - https://hit-insecure-security-project.herokuapp.com/  
+Insecure branch url - https://hit-computer-insecure-project.herokuapp.com/  
 
 If you still wish to run the application locally, follow the steps below.
 
