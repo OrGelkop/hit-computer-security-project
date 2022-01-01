@@ -7,7 +7,7 @@ configFilePath = './config.ini'
 config.read(configFilePath)
 
 min_length = int(config.get('main', 'min_length'))
-max_length = 16  # hard coded since database column for password is varchar(16)
+max_length = int(config.get('main', 'max_length'))
 require_digits = eval(config.get('main', 'require_digits'))
 require_uppercase = eval(config.get('main', 'require_uppercase'))
 require_lowercase = eval(config.get('main', 'require_lowercase'))

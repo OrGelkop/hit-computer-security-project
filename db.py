@@ -132,7 +132,6 @@ class DatabaseManagement:
             if cur is not None:
                 cur.close()
 
-        print(result)
         return result
 
     def get_login_attempts(self, email):

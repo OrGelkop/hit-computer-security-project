@@ -310,8 +310,7 @@ def unsuccessful_login(email):
                                                    (LOGIN_RETRY_THRESHOLD - login_retries)])
         else:
             return render_template('login.html',
-                                   status_message=["Failed to increase login retries, please contact "
-                                                   "administrator.".format(LOGIN_RETRY_THRESHOLD - login_retries)])
+                                   status_message=["Failed to increase login retries, please contact administrator."])
 
 
 def update_previous_passwords(previous_passwords_list, new_password):
