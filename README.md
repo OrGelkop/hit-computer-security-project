@@ -3,12 +3,13 @@ The project is up and running on thanks to Heroku platform.
 
 There are 2 main branches:
 1. main - The main and secured branch which gives solutions to the security vulnerabilities.  
-Main branch url - https://hit-computer-security-project.herokuapp.com/
-2. insecure - The branch which we demonstrate the XSS and SQL Injection vulnerabilities.
-Insecure branch url - https://hit-insecure-security-project.herokuapp.com/
+Main branch url - https://hit-computer-security-project.herokuapp.com/  
+2. insecure - The branch which we demonstrate the XSS and SQL Injection vulnerabilities.  
+Insecure branch url - https://hit-insecure-security-project.herokuapp.com/  
+
+If you still wish to run the application locally, follow the steps below.
 
 ## Run project locally
-In order to run the project locally, the recommended way to do so is:  
 1. Create a Python virtual environment with Python version 3.7.12.
 2. Install all Python requirements in the virtual environment, by running the command:  
 ```shell
